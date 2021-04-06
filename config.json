@@ -1,0 +1,72 @@
+[
+  {
+    "tab": "General",
+    "key": "mode",
+    "label": "Mode",
+    "type": "dropdown",
+    "possibleValues": {
+      "0": "DEMO",
+      "1": "FINAL"
+    },
+    "default": "0"
+  },
+  {
+    "tab": "General",
+    "key": "username",
+    "label": "Username",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "General",
+    "key": "password",
+    "label": "Password",
+    "type": "password",
+    "default": ""
+  },
+  {
+    "tab": "Sender",
+    "key": "senderName",
+    "label": "Name",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Sender",
+    "key": "senderStreet",
+    "label": "Street",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Sender",
+    "key": "senderNo",
+    "label": "No",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Sender",
+    "key": "senderPostalCode",
+    "label": "Postal code",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Sender",
+    "key": "senderTown",
+    "label": "Town",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Sender",
+    "key": "senderCountry",
+    "label": "Country",
+    "type": "dropdown",
+    "possibleValues": {
+      "DE": "Germany"
+    },
+    "default": "0"
+  }
+]
