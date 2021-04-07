@@ -197,29 +197,27 @@ class ShippingController extends Controller
             $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
 
 			// package sums
-			$packageWeights   = 0; // kilograms
+			$packageId        = 0;
 			$packageName      = 'Wareninhalt';
+			$packageWeights   = 0; // kilograms
 
             // iterating through packages
-            foreach ($packages as $package)
+			$packageCount = 0;
+            foreach ($packages as $key => $package)
             {
-                // weight
+				if ($packageCount === 0) {
+					$packageId = $package->id;
+					$packageType = $this->shippingPackageTypeRepositoryContract->findShippingPackageTypeById($package->packageId);
+					$packageName = $packageType->name;
+				}
 				if ($package->weight) {
 					$packageWeights += $package->weight / 1000;
 				}
-
-                // determine packageType
-                $packageType = $this->shippingPackageTypeRepositoryContract->findShippingPackageTypeById($package->packageId);
-
-                // package dimensions
-                //list($length, $width, $height) = $this->getPackageDimensions($packageType);
-
-				// package content
-				$packageName = $packageType->name;
+				$packageCount++;
 			}
 
 			$parcelData = pluginApp(SendungsPosition::class, [
-				count($packages),
+				$packageCount,
 				$packageWeights ? $packageWeights : 0.2, // Fallback minimum weight
 				$packageName
 			]);
@@ -254,7 +252,7 @@ class ShippingController extends Controller
 					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFs', ['labels' => count($labels->Sendung)]);
 
 					// handles the response
-					$shipmentItems = $this->handleAfterRegisterShipment($labels, $package->id);
+					$shipmentItems = $this->handleAfterRegisterShipment($labels, $packageId);
 
 					// adds result
 					$this->createOrderResult[$orderId] = $this->buildResultArray(
@@ -536,6 +534,9 @@ class ShippingController extends Controller
             /** @var OrderShippingPackage $result */
             foreach ($results as $result)
             {
+				if (!strlen($result->labelPath)) {
+					continue;
+				}
 				$labelKey = explode('/', $result->labelPath)[1];
 				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['labelKey' => $labelKey]);
 
