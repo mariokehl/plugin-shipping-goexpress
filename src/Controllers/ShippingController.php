@@ -21,6 +21,7 @@ use GoExpress\API\Abholdatum;
 use GoExpress\API\Empfaenger;
 use GoExpress\API\SendungsDaten;
 use GoExpress\API\SendungsPosition;
+use GoExpress\API\PDFLabelAnfrage;
 use Plenty\Plugin\Log\Loggable;
 
 /**
@@ -140,7 +141,7 @@ class ShippingController extends Controller
 		$orderIds = $this->getOpenOrderIds($orderIds);
 		$shipmentDate = date('Y-m-d');
 
-		foreach($orderIds as $orderId)
+		foreach ($orderIds as $orderId)
 		{
 			$order = $this->orderRepository->findOrderById($orderId);
 
@@ -196,7 +197,8 @@ class ShippingController extends Controller
             {
                 // weight (kg)
 				$weight = 0.2; // Fallback minimum weight
-				if ($package->weight) {
+				if ($package->weight)
+				{
 					$weight = $package->weight / 1000;
 				}
 
@@ -204,14 +206,11 @@ class ShippingController extends Controller
                 $packageType = $this->shippingPackageTypeRepositoryContract->findShippingPackageTypeById($package->packageId);
 
                 // package dimensions
-                list($length, $width, $height) = $this->getPackageDimensions($packageType);
+                //list($length, $width, $height) = $this->getPackageDimensions($packageType);
 
 				$content = 'Lebensmittel';
-				$internalId = $orderId . '_' . $package->id; // Kind of reference number
-				$reference1 = strlen($order->deliveryAddress->email) ? $order->deliveryAddress->email : $order->deliveryAddress->phone;
-				$reference1 = substr($reference1, 0, 35);
-				$reference2 = substr('Auftragsnummer: ' . $orderId, 0, 35);
-
+				$internalId = $orderId.'_'.$package->id; // Kind of reference number
+				$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
 
 				$parcelData = pluginApp(SendungsPosition::class, [
 					1,
@@ -221,45 +220,59 @@ class ShippingController extends Controller
 
                 try
                 {
-
+					// register shipment
 					$shipmentData = pluginApp(SendungsDaten::class, [
 						$receiverAddress,
 						$senderAddress,
 						$pickupDate,
 						$parcelData,
-						$reference2
+						$reference
 					]);
 
-					$this->getLogger('ShippingController_registerShipments')->debug('GoExpress::webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
+					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
 					$shipment = $this->webservice->GOWebService_SendungsErstellung($shipmentData);
-					$this->getLogger('ShippingController_registerShipments')->debug('GoExpress::webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
+					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
 
-                    // shipping service providers API should be used here
-                    $response = [
-                        'labelUrl' => 'https://developers.plentymarkets.com/layout/plugins/production/plentypluginshowcase/images/landingpage/why-plugin-2.svg',
-                        'shipmentNumber' => '1111112222223333',
-                        'sequenceNumber' => 1,
-                        'status' => 'shipment sucessfully registered'
-                    ];
+					$shipmentItems = [];
+					if (isset($shipment->Sendung))
+					{
+						// request labels
+						$labelData = pluginApp(PDFLabelAnfrage::class, [
+							$shipment->Sendung->SendungsnummerAX4
+						]);
 
-                    // handles the response
-                    $shipmentItems = $this->handleAfterRegisterShipment($response['labelUrl'], $response['shipmentNumber'], $package->id);
+						$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFLabelAnfrage', ['labelData' => json_encode($labelData)]);
+						$labels = $this->webservice->GOWebService_PDFLabel($labelData);
+						$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFs', ['labels' => count($labels->Sendung)]);
 
-                    // adds result
-                    $this->createOrderResult[$orderId] = $this->buildResultArray(
-                        true,
-                        $this->getStatusMessage($response),
-                        false,
-                        $shipmentItems);
+						// handles the response
+						$shipmentItems = $this->handleAfterRegisterShipment($labels, $package->id);
 
-                    // saves shipping information
-                    $this->saveShippingInformation($orderId, $shipmentDate, $shipmentItems);
+						// adds result
+						$this->createOrderResult[$orderId] = $this->buildResultArray(
+							true,
+							explode("\n", $this->webservice->__getLastResponseHeaders())[0],
+							false,
+							$shipmentItems
+						);
 
+						// saves shipping information
+						$this->saveShippingInformation($orderId, $shipmentDate, $shipmentItems);
+					}
+					else
+					{
+						$this->createOrderResult[$orderId] = $this->buildResultArray(
+                            false,
+                            explode("\n", $this->webservice->__getLastResponseHeaders())[0],
+                            false,
+                            $shipmentItems
+						);
+					}
 
                 }
-                catch(\SoapFault $soapFault)
-                {
-					$this->getLogger('ShippingController_registerShipments')->critical('GoExpress::webservice.SOAPerr', ['soapFault' => $soapFault->getMessage()]);
+                catch (\SoapFault $soapFault) {
+					$this->getLogger(__METHOD__)->critical('GoExpress::webservice.SOAPerr', ['soapFault' => $soapFault->getMessage()]);
+					$this->handleSoapFault($soapFault);
                 }
 
             }
@@ -269,8 +282,6 @@ class ShippingController extends Controller
 		// return all results to service
 		return $this->createOrderResult;
 	}
-
-
 
     /**
      * Cancels registered shipment(s)
@@ -299,7 +310,7 @@ class ShippingController extends Controller
 
                         $this->createOrderResult[$orderId] = $this->buildResultArray(
                             true,
-                            $this->getStatusMessage($response),
+                            'shipment deleted',
                             false,
                             null);
 
@@ -324,35 +335,15 @@ class ShippingController extends Controller
 
 
 	/**
-     * Retrieves the label file from a given URL and saves it in S3 storage
+     * Retrieves the label file from PDFs response and saves it in S3 storage
      *
-	 * @param $labelUrl
-	 * @param $key
+	 * @param string $label
+	 * @param string $key
 	 * @return StorageObject
 	 */
-	private function saveLabelToS3($labelUrl, $key)
+	private function saveLabelToS3($label, $key)
 	{
-		$ch = curl_init();
-
-		// Set URL to download
-		curl_setopt($ch, CURLOPT_URL, $labelUrl);
-
-		// Include header in result? (0 = yes, 1 = no)
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-
-		// Should cURL return or print out the data? (true = return, false = print)
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-		// Timeout in seconds
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
-		// Download the given URL, and return output
-		$output = curl_exec($ch);
-
-		// Close the cURL resource, and free system resources
-		curl_close($ch);
-		return $this->storageRepository->uploadObject('GoExpress', $key, $output);
-
+		return $this->storageRepository->uploadObject('GoExpress', $key, $label);
 	}
 
 	/**
@@ -368,7 +359,7 @@ class ShippingController extends Controller
 
 		$parcelServicePreset = $parcelServicePresetRepository->getPresetById($parcelServicePresetId);
 
-		if($parcelServicePreset)
+		if ($parcelServicePreset)
 		{
 			return $parcelServicePreset;
 		}
@@ -376,17 +367,6 @@ class ShippingController extends Controller
 		{
 			return null;
 		}
-	}
-
-	/**
-     * Returns a formatted status message
-     *
-	 * @param array $response
-	 * @return string
-	 */
-	private function getStatusMessage($response)
-	{
-		return 'Code: '.$response['status']; // should contain error code and descriptive part
 	}
 
     /**
@@ -402,7 +382,6 @@ class ShippingController extends Controller
 		foreach ($shipmentItems as $shipmentItem)
 		{
 			$transactionIds[] = $shipmentItem['shipmentNumber'];
-			
 		}
 
         $shipmentAt = date(\DateTime::W3C, strtotime($shipmentDate));
@@ -419,8 +398,7 @@ class ShippingController extends Controller
 			'shipmentAt' => $shipmentAt
 
 		];
-		$this->shippingInformationRepositoryContract->saveShippingInformation(
-			$data);
+		$this->shippingInformationRepositoryContract->saveShippingInformation($data);
 	}
 
     /**
@@ -431,7 +409,6 @@ class ShippingController extends Controller
      */
 	private function getOpenOrderIds($orderIds)
 	{
-		
 		$openOrderIds = array();
 		foreach ($orderIds as $orderId)
 		{
@@ -443,7 +420,6 @@ class ShippingController extends Controller
 		}
 		return $openOrderIds;
 	}
-
 
 	/**
      * Returns an array in the structure demanded by plenty service
@@ -537,31 +513,83 @@ class ShippingController extends Controller
 		return array($length, $width, $height);
 	}
 
+    /**
+	 * Retrieve labels from S3 storage
+	 * 
+     * @param Request $request
+     * @param array $orderIds
+     * @return array
+     */
+    public function getLabels(Request $request, $orderIds)
+    {
+        $orderIds = $this->getOrderIds($request, $orderIds);
+        $labels = array();
+        foreach ($orderIds as $orderId)
+        {
+            $results = $this->orderShippingPackage->listOrderShippingPackages($orderId);
+            /** @var OrderShippingPackage $result */
+            foreach ($results as $result)
+            {
+				$labelKey = explode('/', $result->labelPath)[1];
+				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['labelKey' => $labelKey]);
+
+                if ($this->storageRepository->doesObjectExist('GoExpress', $labelKey))
+                {
+                    $storageObject = $this->storageRepository->getObject('GoExpress', $labelKey);
+                    $labels[] = $storageObject->body;
+                }
+            }
+        }
+        return $labels;
+    }
 
 	/**
      * Handling of response values, fires S3 storage and updates order shipping package
      *
-	 * @param string $labelUrl
-     * @param string $shipmentNumber
-     * @param string $sequenceNumber
+	 * @param Sendung $response
+	 * @param integer $packageId
 	 * @return array
 	 */
-	private function handleAfterRegisterShipment($labelUrl, $shipmentNumber, $sequenceNumber)
+	private function handleAfterRegisterShipment($response, $packageId)
 	{
 		$shipmentItems = array();
-		$storageObject = $this->saveLabelToS3(
-			$labelUrl,
-			$shipmentNumber . '.pdf');
 
-		$shipmentItems[] = $this->buildShipmentItems(
-			$labelUrl,
-			$shipmentNumber);
+		$shipmentData = array_shift($response->Sendung);
 
-		$this->orderShippingPackage->updateOrderShippingPackage(
-			$sequenceNumber,
-			$this->buildPackageInfo(
-				$shipmentNumber,
-				$storageObject->key));
+		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($shipmentData->PDFs->Routerlabel))
+		{
+			$shipmentNumber = $shipmentData->Frachtbriefnummer;
+			$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['length' => strlen($shipmentData->PDFs->Routerlabel)]);
+			$storageObject = $this->saveLabelToS3(
+                $shipmentData->PDFs->Routerlabel,
+                $packageId.'.pdf'
+			);
+			$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['storageObject' => json_encode($storageObject)]);
+
+            $shipmentItems[] = $this->buildShipmentItems(
+                'path_to_pdf_in_S3',
+                $shipmentNumber
+			);
+
+            $this->orderShippingPackage->updateOrderShippingPackage(
+                $packageId,
+                $this->buildPackageInfo($shipmentNumber, $storageObject->key)
+            );
+		}
 		return $shipmentItems;
 	}
+
+    /**
+     * @param $soapFault
+     */
+    private function handleSoapFault($soapFault)
+    {
+        echo $soapFault;
+        echo $this->webservice->getLastRequest();
+        echo $this->webservice->getLastRequestHeaders();
+        echo $this->webservice->getLastResponse();
+        echo $this->webservice->getLastResponseHeaders();
+        exit;
+    }
+
 }

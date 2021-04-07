@@ -30,9 +30,9 @@ class Position {
      */
     public function __construct($PositionsNr, $AnzahlPackstuecke, $Barcodes)
     {
-        $this->SendungsnummerAX4 = $PositionsNr;
-        $this->Frachtbriefnummer = $AnzahlPackstuecke;
-        $this->Abholdatum = $Barcodes;
+        $this->PositionsNr = $PositionsNr;
+        $this->AnzahlPackstuecke = $AnzahlPackstuecke;
+        $this->Barcodes = $Barcodes;
     }
 
 }
