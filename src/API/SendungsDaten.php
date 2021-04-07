@@ -17,6 +17,12 @@ class SendungsDaten {
     public $Status = null;
 
     /**
+     * @var string $Benutzername
+     * @access public
+     */
+    public $Benutzername = null;
+
+    /**
      * @var string $Kundenreferenz
      * @access public
      */

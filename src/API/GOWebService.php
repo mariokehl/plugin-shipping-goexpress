@@ -32,8 +32,8 @@ class GOWebService extends \SoapClient
      * @access private
      */
     private static $wsdlFiles = [
-        'https://wsdemo.ax4.com/ws/4020/GOSchaefer/SendungsDaten',
-        'https://webservice.ax4.com/ws/4020/GOSchaefer/SendungsDaten'
+        'DEMO' => 'https://wsdemo.ax4.com/ws/4020/GOSchaefer/SendungsDaten',
+        'FINAL' => 'https://webservice.ax4.com/ws/4020/GOSchaefer/SendungsDaten'
     ];
 
     /**
@@ -41,7 +41,7 @@ class GOWebService extends \SoapClient
      * @param string $mode The environment to use (DEMO|FINAL)
      * @access public
      */
-    public function __construct(array $options = array(), $mode = '0')
+    public function __construct(array $options = array(), $mode = 'DEMO')
     {
         $wsdl = self::$wsdlFiles[$mode].'?wsdl';
 
@@ -67,6 +67,6 @@ class GOWebService extends \SoapClient
      */
     public function GOWebService_SendungsErstellung(SendungsDaten $parameters)
     {
-        return $this->__soapCall('SendungsDaten', array($parameters));
+        return $this->__soapCall('SendungsDaten', [$parameters]);
     }
 }

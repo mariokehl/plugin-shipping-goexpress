@@ -5,10 +5,10 @@
     "label": "Mode",
     "type": "dropdown",
     "possibleValues": {
-      "0": "DEMO",
-      "1": "FINAL"
+      "DEMO": "DEMO",
+      "FINAL": "FINAL"
     },
-    "default": "0"
+    "default": "DEMO"
   },
   {
     "tab": "General",
@@ -67,6 +67,6 @@
     "possibleValues": {
       "DE": "Germany"
     },
-    "default": "0"
+    "default": "DE"
   }
 ]
