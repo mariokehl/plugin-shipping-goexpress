@@ -174,7 +174,7 @@ class ShippingController extends Controller
 				$receiverEmail
 			]);
 
-            // reads sender data from plugin config. this is going to be changed in the future to retrieve data from backend ui settings
+            // reads sender data from plugin config
             $senderName           = $this->config->get('GoExpress.senderName', 'Fleischerei Schäfer OHG');
             $senderStreet         = $this->config->get('GoExpress.senderStreet', 'Hersfelder Str.');
             $senderNo             = $this->config->get('GoExpress.senderNo', '20');
@@ -196,14 +196,16 @@ class ShippingController extends Controller
             // gets order shipping packages from current order
             $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
 
+			// package sums
+			$packageWeights   = 0; // kilograms
+			$packageName      = 'Wareninhalt';
+
             // iterating through packages
             foreach ($packages as $package)
             {
-                // weight (kg)
-				$weight = 0.2; // Fallback minimum weight
-				if ($package->weight)
-				{
-					$weight = $package->weight / 1000;
+                // weight
+				if ($package->weight) {
+					$packageWeights += $package->weight / 1000;
 				}
 
                 // determine packageType
@@ -212,74 +214,74 @@ class ShippingController extends Controller
                 // package dimensions
                 //list($length, $width, $height) = $this->getPackageDimensions($packageType);
 
-				$content = 'Lebensmittel';
-				$internalId = $orderId.'_'.$package->id; // Kind of reference number
-				$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
+				// package content
+				$packageName = $packageType->name;
+			}
 
-				$parcelData = pluginApp(SendungsPosition::class, [
-					1,
-					$weight,
-					$content
+			$parcelData = pluginApp(SendungsPosition::class, [
+				count($packages),
+				$packageWeights ? $packageWeights : 0.2, // Fallback minimum weight
+				$packageName
+			]);
+
+			$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
+
+			try
+			{
+				// register shipment
+				$shipmentData = pluginApp(SendungsDaten::class, [
+					$receiverAddress,
+					$senderAddress,
+					$pickupDate,
+					$parcelData,
+					$reference
 				]);
 
-                try
-                {
-					// register shipment
-					$shipmentData = pluginApp(SendungsDaten::class, [
-						$receiverAddress,
-						$senderAddress,
-						$pickupDate,
-						$parcelData,
-						$reference
+				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
+				$shipment = $this->webservice->GOWebService_SendungsErstellung($shipmentData);
+				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
+
+				$shipmentItems = [];
+				if (isset($shipment->Sendung))
+				{
+					// request labels
+					$labelData = pluginApp(PDFLabelAnfrage::class, [
+						$shipment->Sendung->SendungsnummerAX4
 					]);
 
-					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
-					$shipment = $this->webservice->GOWebService_SendungsErstellung($shipmentData);
-					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
+					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFLabelAnfrage', ['labelData' => json_encode($labelData)]);
+					$labels = $this->webservice->GOWebService_PDFLabel($labelData);
+					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFs', ['labels' => count($labels->Sendung)]);
 
-					$shipmentItems = [];
-					if (isset($shipment->Sendung))
-					{
-						// request labels
-						$labelData = pluginApp(PDFLabelAnfrage::class, [
-							$shipment->Sendung->SendungsnummerAX4
-						]);
+					// handles the response
+					$shipmentItems = $this->handleAfterRegisterShipment($labels, $package->id);
 
-						$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFLabelAnfrage', ['labelData' => json_encode($labelData)]);
-						$labels = $this->webservice->GOWebService_PDFLabel($labelData);
-						$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFs', ['labels' => count($labels->Sendung)]);
+					// adds result
+					$this->createOrderResult[$orderId] = $this->buildResultArray(
+						true,
+						explode("\n", $this->webservice->__getLastResponseHeaders())[0],
+						false,
+						$shipmentItems
+					);
 
-						// handles the response
-						$shipmentItems = $this->handleAfterRegisterShipment($labels, $package->id);
+					// saves shipping information
+					$this->saveShippingInformation($orderId, $shipmentDate, $shipmentItems);
+				}
+				else
+				{
+					$this->createOrderResult[$orderId] = $this->buildResultArray(
+						false,
+						explode("\n", $this->webservice->__getLastResponseHeaders())[0],
+						false,
+						$shipmentItems
+					);
+				}
 
-						// adds result
-						$this->createOrderResult[$orderId] = $this->buildResultArray(
-							true,
-							explode("\n", $this->webservice->__getLastResponseHeaders())[0],
-							false,
-							$shipmentItems
-						);
-
-						// saves shipping information
-						$this->saveShippingInformation($orderId, $shipmentDate, $shipmentItems);
-					}
-					else
-					{
-						$this->createOrderResult[$orderId] = $this->buildResultArray(
-                            false,
-                            explode("\n", $this->webservice->__getLastResponseHeaders())[0],
-                            false,
-                            $shipmentItems
-						);
-					}
-
-                }
-                catch (\SoapFault $soapFault) {
-					$this->getLogger(__METHOD__)->critical('GoExpress::webservice.SOAPerr', ['soapFault' => $soapFault->getMessage()]);
-					$this->handleSoapFault($soapFault);
-                }
-
-            }
+			}
+			catch (\SoapFault $soapFault) {
+				$this->getLogger(__METHOD__)->critical('GoExpress::webservice.SOAPerr', ['soapFault' => $soapFault->getMessage()]);
+				$this->handleSoapFault($soapFault);
+			}
 
 		}
 
