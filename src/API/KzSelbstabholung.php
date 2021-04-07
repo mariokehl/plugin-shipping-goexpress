@@ -2,7 +2,7 @@
 
 namespace GoExpress\API;
 
-class KzSelbstanlieferung {
+class KzSelbstabholung {
 
     const Zustellung     = 0;
     const Selbstabholung = 1;

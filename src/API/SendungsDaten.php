@@ -86,12 +86,12 @@ class SendungsDaten {
      */
     public function __construct($Empfaenger, $Abholadresse, $Abholdatum, $SendungsPosition, $Kundenreferenz)
     {
-        $this->Versender = Versender::_default;
+        $this->Versender = Versender::__default;
         $this->Status = Status::neu;
         $this->Kundenreferenz = $Kundenreferenz;
         $this->Abholadresse = $Abholadresse;
         $this->Empfaenger = $Empfaenger;
-        $this->Service = Service::neu;
+        $this->Service = Service::Overnight;
         $this->Abholdatum = $Abholdatum;
         $this->unfrei = KzUnfrei::frei;
         $this->Selbstanlieferung = KzSelbstanlieferung::Abholung;

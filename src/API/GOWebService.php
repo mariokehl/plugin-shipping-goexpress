@@ -17,7 +17,8 @@ class GOWebService extends \SoapClient
         'SendungsPosition' => 'GoExpress\API\SendungsPosition',
         'Sendung' => 'GoExpress\API\Sendung',
         'Position' => 'GoExpress\API\Position',
-        'Barcodes' => 'GoExpress\API\Barcodes'
+        'Barcodes' => 'GoExpress\API\Barcodes',
+        'PDFs' => 'GoExpress\API\PDFs'
     ];
 
     /**
@@ -62,5 +63,15 @@ class GOWebService extends \SoapClient
     public function GOWebService_SendungsErstellung(SendungsDaten $parameters)
     {
         return $this->__soapCall('SendungsDaten', [$parameters]);
+    }
+
+    /**
+     * @param PDFLabelAnfrage $parameters
+     * @access public
+     * @return Sendung
+     */
+    public function GOWebService_PDFLabel($parameters)
+    {
+        return $this->__soapCall('PDFLabel', [$parameters]);
     }
 }

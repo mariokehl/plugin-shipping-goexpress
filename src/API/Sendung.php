@@ -35,6 +35,12 @@ class Sendung {
     public $Position = null;
 
     /**
+     * @var PDFs $PDFs
+     * @access public
+     */
+    public $PDFs = null;
+
+    /**
      * @param integer $SendungsnummerAX4
      * @param integer $Frachtbriefnummer
      * @param string $Abholdatum

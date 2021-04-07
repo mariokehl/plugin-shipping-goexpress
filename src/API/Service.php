@@ -4,8 +4,10 @@ namespace GoExpress\API;
 
 class Service {
 
-    const neu         = 1;
-    const freigegeben = 3;
-    const Storno      = 20;
+    const Overnight           = 0;
+    const OvernightLetter     = 1;
+    const International       = 2;
+    const InternationalLetter = 3;
+    const OvernightBasis      = 4;
 
 }
