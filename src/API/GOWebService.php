@@ -2,16 +2,6 @@
 
 namespace GoExpress\API;
 
-use Plenty\Plugin\Log\Loggable;
-
-/*
-include_once('SendungsDaten.php');
-include_once('Abholadresse.php');
-include_once('Abholdatum.php');
-include_once('Empfaenger.php');
-include_once('SendungsPosition.php');
-*/
-
 class GOWebService extends \SoapClient
 {
 
