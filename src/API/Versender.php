@@ -4,6 +4,6 @@ namespace GoExpress\API;
 
 class Versender {
 
-    const __default = 405644;
+    const __default = 2926280;
 
 }
