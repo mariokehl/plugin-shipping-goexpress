@@ -153,8 +153,8 @@ class ShippingController extends Controller
 			$receiverName1 = implode(' ', [$address->firstName, $address->lastName]);
 			$receiverName2 = null;
 			if (strlen($address->companyName)) {
+				$receiverName2 = $receiverName1;
 				$receiverName1 = $address->companyName;
-				$receiverName2 = implode(' ', [$address->firstName, $address->lastName]);
 			}
             $receiverStreet        = $address->street;
             $receiverNo            = $address->houseNumber;
