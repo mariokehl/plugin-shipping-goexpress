@@ -165,13 +165,13 @@ class ShippingController extends Controller
 
 			$receiverAddress = pluginApp(Empfaenger::class, [
 				$receiverName1,
-				$receiverName2,
 				$receiverStreet,
 				$receiverNo,
 				$receiverCountry,
 				$receiverPostalCode,
 				$receiverTown,
-				$receiverEmail
+				$receiverEmail,
+				$receiverName2
 			]);
 
             // reads sender data from plugin config
