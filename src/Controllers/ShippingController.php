@@ -150,9 +150,12 @@ class ShippingController extends Controller
             /** @var Address $address */
             $address = $order->deliveryAddress;
 
-            $receiverFirstName     = $address->firstName;
-            $receiverLastName      = $address->lastName;
-			$receiverName		   = $receiverFirstName.' '.$receiverLastName;
+			$receiverName1 = implode(' ', [$address->firstName, $address->lastName]);;
+			$receiverName2 = null;
+			if (strlen($address->companyName)) {
+				$receiverName1 = $address->companyName;
+				$receiverName2 = implode(' ', [$address->firstName, $address->lastName]);
+			}
             $receiverStreet        = $address->street;
             $receiverNo            = $address->houseNumber;
 			$receiverCountry       = $address->country->isoCode2;
@@ -161,7 +164,8 @@ class ShippingController extends Controller
 			$receiverEmail 		   = $address->email;
 
 			$receiverAddress = pluginApp(Empfaenger::class, [
-				$receiverName,
+				$receiverName1,
+				$receiverName2,
 				$receiverStreet,
 				$receiverNo,
 				$receiverCountry,

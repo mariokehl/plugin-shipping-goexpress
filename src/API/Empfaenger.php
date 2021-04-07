@@ -11,6 +11,12 @@ class Empfaenger {
     public $Firmenname1 = null;
 
     /**
+     * @var string $Firmenname2
+     * @access public
+     */
+    public $Firmenname2 = null;
+
+    /**
      * @var string $Strasse1
      * @access public
      */
@@ -48,6 +54,7 @@ class Empfaenger {
 
     /**
      * @param string $Firmenname1
+     * @param string $Firmenname2
      * @param string $Strasse1
      * @param string $Hausnummer
      * @param string $Land
@@ -56,9 +63,10 @@ class Empfaenger {
      * @param string $Email
      * @access public
      */
-    public function __construct($Firmenname1, $Strasse1, $Hausnummer, $Land, $Postleitzahl, $Stadt, $Email)
+    public function __construct($Firmenname1, $Firmenname2 = '', $Strasse1, $Hausnummer, $Land, $Postleitzahl, $Stadt, $Email)
     {
         $this->Firmenname1    = $Firmenname1;
+        $this->Firmenname2    = $Firmenname2;
         $this->Strasse1       = $Strasse1;
         $this->Hausnummer     = $Hausnummer;
         $this->Land           = $Land;
