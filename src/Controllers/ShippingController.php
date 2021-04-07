@@ -197,18 +197,18 @@ class ShippingController extends Controller
             $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
 
 			// package sums
-			$packageId        = 0;
-			$packageName      = 'Wareninhalt';
-			$packageWeights   = 0; // kilograms
+			$firstPackageId   = null;
+			$firstPackageName = 'Wareninhalt';
+			$packageWeights   = 0.0; // kilograms
 
             // iterating through packages
 			$packageCount = 0;
             foreach ($packages as $key => $package)
             {
 				if ($packageCount === 0) {
-					$packageId = $package->id;
+					$firstPackageId = $package->id;
 					$packageType = $this->shippingPackageTypeRepositoryContract->findShippingPackageTypeById($package->packageId);
-					$packageName = $packageType->name;
+					$firstPackageName = $packageType->name;
 				}
 				if ($package->weight) {
 					$packageWeights += $package->weight / 1000;
@@ -219,7 +219,7 @@ class ShippingController extends Controller
 			$parcelData = pluginApp(SendungsPosition::class, [
 				$packageCount,
 				$packageWeights ? $packageWeights : 0.2, // Fallback minimum weight
-				$packageName
+				$firstPackageName
 			]);
 
 			$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
@@ -252,7 +252,7 @@ class ShippingController extends Controller
 					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFs', ['labels' => count($labels->Sendung)]);
 
 					// handles the response
-					$shipmentItems = $this->handleAfterRegisterShipment($labels, $packageId);
+					$shipmentItems = $this->handleAfterRegisterShipment($labels, $firstPackageId);
 
 					// adds result
 					$this->createOrderResult[$orderId] = $this->buildResultArray(
