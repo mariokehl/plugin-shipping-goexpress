@@ -150,7 +150,7 @@ class ShippingController extends Controller
             /** @var Address $address */
             $address = $order->deliveryAddress;
 
-			$receiverName1 = implode(' ', [$address->firstName, $address->lastName]);;
+			$receiverName1 = implode(' ', [$address->firstName, $address->lastName]);
 			$receiverName2 = null;
 			if (strlen($address->companyName)) {
 				$receiverName1 = $address->companyName;
