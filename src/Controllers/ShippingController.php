@@ -192,10 +192,13 @@ class ShippingController extends Controller
             $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
 
             // iterating through packages
-            foreach($packages as $package)
+            foreach ($packages as $package)
             {
-                // weight
-                $weight = $package->weight;
+                // weight (kg)
+				$weight = 0.2; // Fallback minimum weight
+				if ($package->weight) {
+					$weight = $package->weight / 1000;
+				}
 
                 // determine packageType
                 $packageType = $this->shippingPackageTypeRepositoryContract->findShippingPackageTypeById($package->packageId);
@@ -219,13 +222,17 @@ class ShippingController extends Controller
                 try
                 {
 
-					$shipment = pluginApp(SendungsDaten::class, [
+					$shipmentData = pluginApp(SendungsDaten::class, [
 						$receiverAddress,
 						$senderAddress,
 						$pickupDate,
 						$parcelData,
 						$reference2
 					]);
+
+					$this->getLogger('ShippingController_registerShipments')->debug('GoExpress::webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
+					$shipment = $this->webservice->GOWebService_SendungsErstellung($shipmentData);
+					$this->getLogger('ShippingController_registerShipments')->debug('GoExpress::webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
 
                     // shipping service providers API should be used here
                     $response = [
@@ -234,28 +241,25 @@ class ShippingController extends Controller
                         'sequenceNumber' => 1,
                         'status' => 'shipment sucessfully registered'
                     ];
-					$response = $this->webservice->GOWebService_SendungsErstellung($shipment);
-
-					$this->getLogger('GoExpress')->debug('RESPONSE: ' . $response);
 
                     // handles the response
-                    //$shipmentItems = $this->handleAfterRegisterShipment($response['labelUrl'], $response['shipmentNumber'], $package->id);
+                    $shipmentItems = $this->handleAfterRegisterShipment($response['labelUrl'], $response['shipmentNumber'], $package->id);
 
                     // adds result
-                    //$this->createOrderResult[$orderId] = $this->buildResultArray(
-                    //    true,
-                    //    $this->getStatusMessage($response),
-                    //    false,
-                    //    $shipmentItems);
+                    $this->createOrderResult[$orderId] = $this->buildResultArray(
+                        true,
+                        $this->getStatusMessage($response),
+                        false,
+                        $shipmentItems);
 
                     // saves shipping information
-                    //$this->saveShippingInformation($orderId, $shipmentDate, $shipmentItems);
+                    $this->saveShippingInformation($orderId, $shipmentDate, $shipmentItems);
 
 
                 }
                 catch(\SoapFault $soapFault)
                 {
-					$this->getLogger('GoExpress')->critical('Exception during SOAP: ' . $soapFault->getMessage());
+					$this->getLogger('ShippingController_registerShipments')->critical('GoExpress::webservice.SOAPerr', ['soapFault' => $soapFault->getMessage()]);
                 }
 
             }

@@ -86,16 +86,16 @@ class SendungsDaten {
      */
     public function __construct($Empfaenger, $Abholadresse, $Abholdatum, $SendungsPosition, $Kundenreferenz)
     {
-        $this->Versender = 405644;
-        $this->Status = 1; // 1 = neu, 3 = freigegeben, 20 = Storno
+        $this->Versender = Versender::_default;
+        $this->Status = Status::neu;
         $this->Kundenreferenz = $Kundenreferenz;
         $this->Abholadresse = $Abholadresse;
         $this->Empfaenger = $Empfaenger;
-        $this->Service = 0; // 0 = Overnight, 1 = Overnight Letter, 2 = International, 3 = International Letter, 4 = Overnight Basis
+        $this->Service = Service::neu;
         $this->Abholdatum = $Abholdatum;
-        $this->unfrei = 0; // 0 = Frei, 1 = unfrei
-        $this->Selbstanlieferung = 0; // 0 = Abholung, 1 = Selbstanlieferung
-        $this->Selbstabholung = 0; // 0 = Zustellung, 1 = Selbstabholung
+        $this->unfrei = KzUnfrei::frei;
+        $this->Selbstanlieferung = KzSelbstanlieferung::Abholung;
+        $this->Selbstabholung = KzSelbstabholung::Zustellung;
         $this->SendungsPosition = $SendungsPosition;
     }
 

@@ -10,11 +10,14 @@ class GOWebService extends \SoapClient
      * @access private
      */
     private static $classmap = [
-        'SendungsDaten' => 'GoExpress\API\SendungsDaten',
         'Abholadresse' => 'GoExpress\API\Abholadresse',
         'Abholdatum' => 'GoExpress\API\Abholdatum',
         'Empfaenger' => 'GoExpress\API\Empfaenger',
-        'SendungsPosition' => 'GoExpress\API\SendungsPosition'
+        'SendungsDaten' => 'GoExpress\API\SendungsDaten',
+        'SendungsPosition' => 'GoExpress\API\SendungsPosition',
+        'Sendung' => 'GoExpress\API\Sendung',
+        'Position' => 'GoExpress\API\Position',
+        'Barcodes' => 'GoExpress\API\Barcodes'
     ];
 
     /**
@@ -54,6 +57,7 @@ class GOWebService extends \SoapClient
     /**
      * @param SendungsDaten $parameters
      * @access public
+     * @return Sendung
      */
     public function GOWebService_SendungsErstellung(SendungsDaten $parameters)
     {
