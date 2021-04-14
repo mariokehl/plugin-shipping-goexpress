@@ -144,6 +144,7 @@ class ShippingController extends Controller
 		foreach ($orderIds as $orderId)
 		{
 			$order = $this->orderRepository->findOrderById($orderId);
+			$this->getLogger(__METHOD__)->debug('GoExpress::plenty.Order', ['order' => json_encode($order)]);
 
             // gathering required data for registering the shipment
 
@@ -222,7 +223,24 @@ class ShippingController extends Controller
 				$firstPackageName
 			]);
 
+			// customer reference
 			$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
+
+			// delivery notice from comments (must contain @goexpress)
+			$deliveryNotice = '';
+			/** @var Comment $comment */
+			foreach ($order->comments as $comment) {
+				if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
+					continue;
+				} else {
+					$commentText = strip_tags($comment->text);
+					$commentText = str_replace('@goexpress', '', $commentText);
+					$commentText = trim($commentText);
+					$commentText = substr($commentText, 0, 128);
+					$deliveryNotice = $commentText;
+					break;
+				}
+			}
 
 			try
 			{
@@ -232,7 +250,8 @@ class ShippingController extends Controller
 					$senderAddress,
 					$pickupDate,
 					$parcelData,
-					$reference
+					$reference,
+					$deliveryNotice
 				]);
 
 				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
@@ -277,7 +296,7 @@ class ShippingController extends Controller
 
 			}
 			catch (\SoapFault $soapFault) {
-				$this->getLogger(__METHOD__)->critical('GoExpress::webservice.SOAPerr', ['soapFault' => $soapFault->getMessage()]);
+				$this->getLogger(__METHOD__)->critical('GoExpress::webservice.SOAPerr', ['soapFault' => json_encode($soapFault)]);
 				$this->handleSoapFault($soapFault);
 			}
 
