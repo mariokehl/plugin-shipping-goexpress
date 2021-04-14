@@ -71,6 +71,12 @@ class SendungsDaten {
     public $Selbstabholung = null;
 
     /**
+     * @var string $Zustellhinweise
+     * @access public
+     */
+    public $Zustellhinweise = null;
+
+    /**
      * @var SendungsPosition $SendungsPosition
      * @access public
      */
@@ -82,9 +88,10 @@ class SendungsDaten {
      * @param Abholdatum $Abholdatum
      * @param SendungsPosition $SendungsPosition
      * @param string $Kundenreferenz
+     * @param string $Zustellhinweise
      * @access public
      */
-    public function __construct($Empfaenger, $Abholadresse, $Abholdatum, $SendungsPosition, $Kundenreferenz)
+    public function __construct($Empfaenger, $Abholadresse, $Abholdatum, $SendungsPosition, $Kundenreferenz, $Zustellhinweise = '')
     {
         $this->Versender = Versender::__default;
         $this->Status = Status::freigegeben;
@@ -96,6 +103,7 @@ class SendungsDaten {
         $this->unfrei = KzUnfrei::frei;
         $this->Selbstanlieferung = KzSelbstanlieferung::Abholung;
         $this->Selbstabholung = KzSelbstabholung::Zustellung;
+        $this->Zustellhinweise = $Zustellhinweise;
         $this->SendungsPosition = $SendungsPosition;
     }
 
