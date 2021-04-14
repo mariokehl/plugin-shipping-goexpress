@@ -192,6 +192,11 @@ class ShippingController extends Controller
 				$senderTown
 			]);
 
+			// 
+			// WARNING: shipments can no longer be registered for the current day after 3 p.m.
+			//			if it is done anyway, it will result in an webservice error.
+			//          maybe this should be catched and the date adjusted accordingly!
+			//
 			$pickupDate = pluginApp(Abholdatum::class, [date('d.m.Y')]);
 
             // gets order shipping packages from current order
@@ -227,7 +232,7 @@ class ShippingController extends Controller
 			$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
 
 			// delivery notice from comments (must contain @goexpress)
-			$deliveryNotice = '';
+			$deliveryNotice = null;
 			/** @var Comment $comment */
 			foreach ($order->comments as $comment) {
 				if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
