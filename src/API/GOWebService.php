@@ -2,16 +2,6 @@
 
 namespace GoExpress\API;
 
-use Plenty\Plugin\Log\Loggable;
-
-/*
-include_once('SendungsDaten.php');
-include_once('Abholadresse.php');
-include_once('Abholdatum.php');
-include_once('Empfaenger.php');
-include_once('SendungsPosition.php');
-*/
-
 class GOWebService extends \SoapClient
 {
 
@@ -20,11 +10,15 @@ class GOWebService extends \SoapClient
      * @access private
      */
     private static $classmap = [
-        'SendungsDaten' => 'GoExpress\API\SendungsDaten',
         'Abholadresse' => 'GoExpress\API\Abholadresse',
         'Abholdatum' => 'GoExpress\API\Abholdatum',
         'Empfaenger' => 'GoExpress\API\Empfaenger',
-        'SendungsPosition' => 'GoExpress\API\SendungsPosition'
+        'SendungsDaten' => 'GoExpress\API\SendungsDaten',
+        'SendungsPosition' => 'GoExpress\API\SendungsPosition',
+        'Sendung' => 'GoExpress\API\Sendung',
+        'Position' => 'GoExpress\API\Position',
+        'Barcodes' => 'GoExpress\API\Barcodes',
+        'PDFs' => 'GoExpress\API\PDFs'
     ];
 
     /**
@@ -32,8 +26,8 @@ class GOWebService extends \SoapClient
      * @access private
      */
     private static $wsdlFiles = [
-        'https://wsdemo.ax4.com/ws/4020/GOSchaefer/SendungsDaten',
-        'https://webservice.ax4.com/ws/4020/GOSchaefer/SendungsDaten'
+        'DEMO' => 'https://wsdemo.ax4.com/ws/4020/GOSchaefer/SendungsDaten',
+        'FINAL' => 'https://webservice.ax4.com/ws/4020/GOSchaefer/SendungsDaten'
     ];
 
     /**
@@ -41,7 +35,7 @@ class GOWebService extends \SoapClient
      * @param string $mode The environment to use (DEMO|FINAL)
      * @access public
      */
-    public function __construct(array $options = array(), $mode = '0')
+    public function __construct(array $options = array(), $mode = 'DEMO')
     {
         $wsdl = self::$wsdlFiles[$mode].'?wsdl';
 
@@ -64,9 +58,20 @@ class GOWebService extends \SoapClient
     /**
      * @param SendungsDaten $parameters
      * @access public
+     * @return Sendung
      */
     public function GOWebService_SendungsErstellung(SendungsDaten $parameters)
     {
-        return $this->__soapCall('SendungsDaten', array($parameters));
+        return $this->__soapCall('SendungsDaten', [$parameters]);
+    }
+
+    /**
+     * @param PDFLabelAnfrage $parameters
+     * @access public
+     * @return Sendung
+     */
+    public function GOWebService_PDFLabel($parameters)
+    {
+        return $this->__soapCall('PDFLabel', [$parameters]);
     }
 }

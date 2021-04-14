@@ -16,7 +16,7 @@ class GoExpressServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-	    $this->getApplication()->register(GoExpressRouteServiceProvider::class);
+	    //$this->getApplication()->register(GoExpressRouteServiceProvider::class);
     }
 
     public function boot(ShippingServiceProviderService $shippingServiceProviderService)
@@ -25,11 +25,12 @@ class GoExpressServiceProvider extends ServiceProvider
         $shippingServiceProviderService->registerShippingProvider(
             'GoExpress',
             [
-                'de' => 'GO! Express Versand',
-                'en' => 'GO! Express Shipping'
+                'de' => 'GO! Express Webservice',
+                'en' => 'GO! Express Webservice'
             ],
             [
                 'GoExpress\\Controllers\\ShippingController@registerShipments',
+                'GoExpress\\Controllers\\ShippingController@getLabels',
                 'GoExpress\\Controllers\\ShippingController@deleteShipments',
             ]
         );

@@ -17,6 +17,12 @@ class SendungsDaten {
     public $Status = null;
 
     /**
+     * @var string $Benutzername
+     * @access public
+     */
+    public $Benutzername = null;
+
+    /**
      * @var string $Kundenreferenz
      * @access public
      */
@@ -65,6 +71,12 @@ class SendungsDaten {
     public $Selbstabholung = null;
 
     /**
+     * @var string $Zustellhinweise
+     * @access public
+     */
+    public $Zustellhinweise = null;
+
+    /**
      * @var SendungsPosition $SendungsPosition
      * @access public
      */
@@ -76,20 +88,22 @@ class SendungsDaten {
      * @param Abholdatum $Abholdatum
      * @param SendungsPosition $SendungsPosition
      * @param string $Kundenreferenz
+     * @param string $Zustellhinweise
      * @access public
      */
-    public function __construct($Empfaenger, $Abholadresse, $Abholdatum, $SendungsPosition, $Kundenreferenz)
+    public function __construct($Empfaenger, $Abholadresse, $Abholdatum, $SendungsPosition, $Kundenreferenz, $Zustellhinweise = '')
     {
-        $this->Versender = 405644;
-        $this->Status = 1; // 1 = neu, 3 = freigegeben, 20 = Storno
+        $this->Versender = Versender::__default;
+        $this->Status = Status::freigegeben;
         $this->Kundenreferenz = $Kundenreferenz;
         $this->Abholadresse = $Abholadresse;
         $this->Empfaenger = $Empfaenger;
-        $this->Service = 0; // 0 = Overnight, 1 = Overnight Letter, 2 = International, 3 = International Letter, 4 = Overnight Basis
+        $this->Service = Service::Overnight;
         $this->Abholdatum = $Abholdatum;
-        $this->unfrei = 0; // 0 = Frei, 1 = unfrei
-        $this->Selbstanlieferung = 0; // 0 = Abholung, 1 = Selbstanlieferung
-        $this->Selbstabholung = 0; // 0 = Zustellung, 1 = Selbstabholung
+        $this->unfrei = KzUnfrei::frei;
+        $this->Selbstanlieferung = KzSelbstanlieferung::Abholung;
+        $this->Selbstabholung = KzSelbstabholung::Zustellung;
+        $this->Zustellhinweise = $Zustellhinweise;
         $this->SendungsPosition = $SendungsPosition;
     }
 
