@@ -75,5 +75,12 @@
     "label": "Pick-up time from (format: hh:mm)",
     "type": "text",
     "default": "15:30"
+  },
+  {
+    "tab": "Shipping",
+    "key": "deliveryNotice",
+    "label": "Additional delivery notice",
+    "type": "text",
+    "default": "Achtung Lebensmittel, bei Problemen bitte direkt melden. Sicher Abstellen ok mit Karte in BK."
   }
 ]

@@ -231,8 +231,8 @@ class ShippingController extends Controller
 			// customer reference
 			$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
 
-			// delivery notice from comments (must contain @goexpress)
-			$deliveryNotice = null;
+			// overwrite default delivery notice from comments (must contain @goexpress)
+			$deliveryNotice = $this->config->get('GoExpress.deliveryNotice', '');
 			/** @var Comment $comment */
 			foreach ($order->comments as $comment) {
 				if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
