@@ -197,7 +197,7 @@ class ShippingController extends Controller
 			//			if it is done anyway, it will result in an webservice error.
 			//          maybe this should be catched and the date adjusted accordingly!
 			//
-			$pickupDate = pluginApp(Abholdatum::class, [date('d.m.Y')]);
+			$pickupDate = pluginApp(Abholdatum::class, [date('d.m.Y'), $this->config->get('GoExpress.pickupTimeFrom', '15:30')]);
 
             // gets order shipping packages from current order
             $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
@@ -231,8 +231,8 @@ class ShippingController extends Controller
 			// customer reference
 			$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
 
-			// delivery notice from comments (must contain @goexpress)
-			$deliveryNotice = null;
+			// overwrite default delivery notice from comments (must contain @goexpress)
+			$deliveryNotice = $this->config->get('GoExpress.deliveryNotice', '');
 			/** @var Comment $comment */
 			foreach ($order->comments as $comment) {
 				if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
