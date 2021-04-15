@@ -11,12 +11,20 @@ class Abholdatum {
     public $Datum = null;
 
     /**
-     * @param string $Datum
+     * @var string $UhrzeitVon
      * @access public
      */
-    public function __construct($Datum)
+    public $UhrzeitVon = null;
+
+    /**
+     * @param string $Datum
+     * @param string $UhrzeitVon
+     * @access public
+     */
+    public function __construct($Datum, $UhrzeitVon)
     {
       $this->Datum = $Datum;
+      $this->UhrzeitVon = $UhrzeitVon;
     }
 
 }

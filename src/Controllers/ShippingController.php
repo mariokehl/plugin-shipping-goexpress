@@ -197,7 +197,7 @@ class ShippingController extends Controller
 			//			if it is done anyway, it will result in an webservice error.
 			//          maybe this should be catched and the date adjusted accordingly!
 			//
-			$pickupDate = pluginApp(Abholdatum::class, [date('d.m.Y')]);
+			$pickupDate = pluginApp(Abholdatum::class, [date('d.m.Y'), $this->config->get('GoExpress.pickupTimeFrom', '15:30')]);
 
             // gets order shipping packages from current order
             $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);

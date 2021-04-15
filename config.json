@@ -68,5 +68,12 @@
       "DE": "Germany"
     },
     "default": "DE"
+  },
+  {
+    "tab": "Shipping",
+    "key": "pickupTimeFrom",
+    "label": "Pick-up time from (format: hh:mm)",
+    "type": "text",
+    "default": "15:30"
   }
 ]
