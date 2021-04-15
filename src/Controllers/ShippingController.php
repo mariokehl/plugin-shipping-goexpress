@@ -194,10 +194,13 @@ class ShippingController extends Controller
 
 			// 
 			// WARNING: shipments can no longer be registered for the current day after 3 p.m.
-			//			if it is done anyway, it will result in an webservice error.
+			//			if it is done anyway, it will result in a webservice error.
 			//          maybe this should be catched and the date adjusted accordingly!
 			//
-			$pickupDate = pluginApp(Abholdatum::class, [date('d.m.Y'), $this->config->get('GoExpress.pickupTimeFrom', '15:30')]);
+			$pickupDate = pluginApp(Abholdatum::class, [
+				date('d.m.Y'),
+				$this->config->get('GoExpress.pickupTimeFrom', '15:30')
+			]);
 
             // gets order shipping packages from current order
             $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
