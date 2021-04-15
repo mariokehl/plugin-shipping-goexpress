@@ -73,7 +73,7 @@ class ShippingController extends Controller
 	private $shippingPackageTypeRepositoryContract;
 
     /**
-     * @var  array
+     * @var array
      */
     private $createOrderResult = [];
 
@@ -81,6 +81,17 @@ class ShippingController extends Controller
      * @var ConfigRepository
      */
     private $config;
+
+	/**
+	 * Shipment constants
+	 */
+	const DEFAULT_PACKAGE_NAME		= 'Wareninhalt';
+	const MINIMUM_FALLBACK_WEIGHT	= 0.2;
+
+    /**
+     * Plugin key
+     */
+    const PLUGIN_KEY = 'GoExpress';
 
 	/**
 	 * ShipmentController constructor.
@@ -207,7 +218,7 @@ class ShippingController extends Controller
 
 			// package sums
 			$firstPackageId   = null;
-			$firstPackageName = 'Wareninhalt';
+			$firstPackageName = self::DEFAULT_PACKAGE_NAME;
 			$packageWeights   = 0.0; // kilograms
 
             // iterating through packages
@@ -227,7 +238,7 @@ class ShippingController extends Controller
 
 			$parcelData = pluginApp(SendungsPosition::class, [
 				$packageCount,
-				$packageWeights ? $packageWeights : 0.2, // Fallback minimum weight
+				$packageWeights ? $packageWeights : self::MINIMUM_FALLBACK_WEIGHT,
 				$firstPackageName
 			]);
 
@@ -374,7 +385,7 @@ class ShippingController extends Controller
 	 */
 	private function saveLabelToS3($label, $key)
 	{
-		return $this->storageRepository->uploadObject('GoExpress', $key, $label);
+		return $this->storageRepository->uploadObject(self::PLUGIN_KEY, $key, $label);
 	}
 
 	/**
@@ -421,7 +432,7 @@ class ShippingController extends Controller
 		$data = [
 			'orderId' => $orderId,
 			'transactionId' => implode(',', $transactionIds),
-			'shippingServiceProvider' => 'GoExpress',
+			'shippingServiceProvider' => self::PLUGIN_KEY,
 			'shippingStatus' => 'registered',
 			'shippingCosts' => 0.00,
 			'additionalData' => $shipmentItems,
@@ -567,9 +578,9 @@ class ShippingController extends Controller
 				$labelKey = explode('/', $result->labelPath)[1];
 				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['labelKey' => $labelKey]);
 
-                if ($this->storageRepository->doesObjectExist('GoExpress', $labelKey))
+                if ($this->storageRepository->doesObjectExist(self::PLUGIN_KEY, $labelKey))
                 {
-                    $storageObject = $this->storageRepository->getObject('GoExpress', $labelKey);
+                    $storageObject = $this->storageRepository->getObject(self::PLUGIN_KEY, $labelKey);
                     $labels[] = $storageObject->body;
                 }
             }
