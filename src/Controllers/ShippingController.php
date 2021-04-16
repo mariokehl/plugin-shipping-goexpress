@@ -144,6 +144,7 @@ class ShippingController extends Controller
 	 *
 	 * @param Request $request
 	 * @param array $orderIds
+	 * @internal see GoExpressServiceProvider
 	 * @return string
 	 */
 	public function registerShipments(Request $request, $orderIds)
@@ -330,6 +331,7 @@ class ShippingController extends Controller
      *
      * @param Request $request
      * @param array $orderIds
+	 * @internal see GoExpressServiceProvider
      * @return array
      */
     public function deleteShipments(Request $request, $orderIds)
@@ -536,6 +538,7 @@ class ShippingController extends Controller
      * Returns the package dimensions by package type
      *
 	 * @param $packageType
+	 * @deprecated since v0.1.2
 	 * @return array
 	 */
 	private function getPackageDimensions($packageType): array
@@ -560,6 +563,7 @@ class ShippingController extends Controller
 	 * 
      * @param Request $request
      * @param array $orderIds
+	 * @internal see GoExpressServiceProvider
      * @return array
      */
     public function getLabels(Request $request, $orderIds)
