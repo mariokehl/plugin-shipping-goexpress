@@ -211,7 +211,8 @@ class ShippingController extends Controller
 			//
 			$pickupDate = pluginApp(Abholdatum::class, [
 				date('d.m.Y'),
-				$this->config->get('GoExpress.pickupTimeFrom', '15:30')
+				$this->config->get('GoExpress.pickupTimeFrom', '15:30'),
+				$this->config->get('GoExpress.pickupTimeTo', '18:30')
 			]);
 
             // gets order shipping packages from current order
