@@ -22,7 +22,7 @@ class GOWebService extends \SoapClient
     ];
 
     /**
-     * @var string wsdlFile
+     * @var array $wsdlFiles
      * @access private
      */
     private static $wsdlFiles = [
@@ -41,7 +41,7 @@ class GOWebService extends \SoapClient
 
         foreach (self::$classmap as $key => $value) {
             if (!isset($options['classmap'][$key])) {
-            $options['classmap'][$key] = $value;
+                $options['classmap'][$key] = $value;
             }
         }
       

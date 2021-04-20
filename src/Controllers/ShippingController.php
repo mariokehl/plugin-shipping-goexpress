@@ -73,7 +73,7 @@ class ShippingController extends Controller
 	private $shippingPackageTypeRepositoryContract;
 
     /**
-     * @var  array
+     * @var array
      */
     private $createOrderResult = [];
 
@@ -81,6 +81,17 @@ class ShippingController extends Controller
      * @var ConfigRepository
      */
     private $config;
+
+	/**
+	 * Shipment constants
+	 */
+	const DEFAULT_PACKAGE_NAME		= 'Wareninhalt';
+	const MINIMUM_FALLBACK_WEIGHT	= 0.2;
+
+    /**
+     * Plugin key
+     */
+    const PLUGIN_KEY = 'GoExpress';
 
 	/**
 	 * ShipmentController constructor.
@@ -133,6 +144,7 @@ class ShippingController extends Controller
 	 *
 	 * @param Request $request
 	 * @param array $orderIds
+	 * @internal see GoExpressServiceProvider
 	 * @return string
 	 */
 	public function registerShipments(Request $request, $orderIds)
@@ -194,17 +206,21 @@ class ShippingController extends Controller
 
 			// 
 			// WARNING: shipments can no longer be registered for the current day after 3 p.m.
-			//			if it is done anyway, it will result in an webservice error.
+			//			if it is done anyway, it will result in a webservice error.
 			//          maybe this should be catched and the date adjusted accordingly!
 			//
-			$pickupDate = pluginApp(Abholdatum::class, [date('d.m.Y'), $this->config->get('GoExpress.pickupTimeFrom', '15:30')]);
+			$pickupDate = pluginApp(Abholdatum::class, [
+				date('d.m.Y'),
+				$this->config->get('GoExpress.pickupTimeFrom', '15:30'),
+				$this->config->get('GoExpress.pickupTimeTo', '18:30')
+			]);
 
             // gets order shipping packages from current order
             $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
 
 			// package sums
 			$firstPackageId   = null;
-			$firstPackageName = 'Wareninhalt';
+			$firstPackageName = self::DEFAULT_PACKAGE_NAME;
 			$packageWeights   = 0.0; // kilograms
 
             // iterating through packages
@@ -224,7 +240,7 @@ class ShippingController extends Controller
 
 			$parcelData = pluginApp(SendungsPosition::class, [
 				$packageCount,
-				$packageWeights ? $packageWeights : 0.2, // Fallback minimum weight
+				$packageWeights ? $packageWeights : self::MINIMUM_FALLBACK_WEIGHT,
 				$firstPackageName
 			]);
 
@@ -316,6 +332,7 @@ class ShippingController extends Controller
      *
      * @param Request $request
      * @param array $orderIds
+	 * @internal see GoExpressServiceProvider
      * @return array
      */
     public function deleteShipments(Request $request, $orderIds)
@@ -371,7 +388,7 @@ class ShippingController extends Controller
 	 */
 	private function saveLabelToS3($label, $key)
 	{
-		return $this->storageRepository->uploadObject('GoExpress', $key, $label);
+		return $this->storageRepository->uploadObject(self::PLUGIN_KEY, $key, $label);
 	}
 
 	/**
@@ -418,7 +435,7 @@ class ShippingController extends Controller
 		$data = [
 			'orderId' => $orderId,
 			'transactionId' => implode(',', $transactionIds),
-			'shippingServiceProvider' => 'GoExpress',
+			'shippingServiceProvider' => self::PLUGIN_KEY,
 			'shippingStatus' => 'registered',
 			'shippingCosts' => 0.00,
 			'additionalData' => $shipmentItems,
@@ -522,6 +539,7 @@ class ShippingController extends Controller
      * Returns the package dimensions by package type
      *
 	 * @param $packageType
+	 * @deprecated since v0.1.2
 	 * @return array
 	 */
 	private function getPackageDimensions($packageType): array
@@ -546,6 +564,7 @@ class ShippingController extends Controller
 	 * 
      * @param Request $request
      * @param array $orderIds
+	 * @internal see GoExpressServiceProvider
      * @return array
      */
     public function getLabels(Request $request, $orderIds)
@@ -564,9 +583,9 @@ class ShippingController extends Controller
 				$labelKey = explode('/', $result->labelPath)[1];
 				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['labelKey' => $labelKey]);
 
-                if ($this->storageRepository->doesObjectExist('GoExpress', $labelKey))
+                if ($this->storageRepository->doesObjectExist(self::PLUGIN_KEY, $labelKey))
                 {
-                    $storageObject = $this->storageRepository->getObject('GoExpress', $labelKey);
+                    $storageObject = $this->storageRepository->getObject(self::PLUGIN_KEY, $labelKey);
                     $labels[] = $storageObject->body;
                 }
             }

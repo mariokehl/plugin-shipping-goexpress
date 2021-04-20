@@ -72,9 +72,16 @@
   {
     "tab": "Shipping",
     "key": "pickupTimeFrom",
-    "label": "Pick-up time from (format: hh:mm)",
+    "label": "Pick-up time FROM (format: hh:mm)",
     "type": "text",
     "default": "15:30"
+  },
+  {
+    "tab": "Shipping",
+    "key": "pickupTimeTo",
+    "label": "Pick-up time TO (format: hh:mm)",
+    "type": "text",
+    "default": "18:30"
   },
   {
     "tab": "Shipping",
