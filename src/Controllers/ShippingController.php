@@ -153,6 +153,34 @@ class ShippingController extends Controller
 		$orderIds = $this->getOpenOrderIds($orderIds);
 		$shipmentDate = date('Y-m-d');
 
+		// reads sender data from plugin config
+		$senderName           = $this->config->get('GoExpress.senderName', 'Fleischerei Schäfer OHG');
+		$senderStreet         = $this->config->get('GoExpress.senderStreet', 'Hersfelder Str.');
+		$senderNo             = $this->config->get('GoExpress.senderNo', '20');
+		$senderCountry        = $this->config->get('GoExpress.senderCountry', 'DE');
+		$senderPostalCode     = $this->config->get('GoExpress.senderPostalCode', '36272');
+		$senderTown           = $this->config->get('GoExpress.senderTown', 'Niederaula');
+
+		$senderAddress = pluginApp(Abholadresse::class, [
+			$senderName,
+			$senderStreet,
+			$senderNo,
+			$senderCountry,
+			$senderPostalCode,
+			$senderTown
+		]);
+
+		// 
+		// WARNING: shipments can no longer be registered for the current day after 3 p.m.
+		//			if it is done anyway, it will result in a webservice error.
+		//          maybe this should be catched and the date adjusted accordingly!
+		//
+		$pickupDate = pluginApp(Abholdatum::class, [
+			date('d.m.Y'),
+			$this->config->get('GoExpress.pickupTimeFrom', '15:30'),
+			$this->config->get('GoExpress.pickupTimeTo', '18:30')
+		]);
+
 		foreach ($orderIds as $orderId)
 		{
 			$order = $this->orderRepository->findOrderById($orderId);
@@ -185,34 +213,6 @@ class ShippingController extends Controller
 				$receiverTown,
 				$receiverEmail,
 				$receiverName2
-			]);
-
-            // reads sender data from plugin config
-            $senderName           = $this->config->get('GoExpress.senderName', 'Fleischerei Schäfer OHG');
-            $senderStreet         = $this->config->get('GoExpress.senderStreet', 'Hersfelder Str.');
-            $senderNo             = $this->config->get('GoExpress.senderNo', '20');
-			$senderCountry        = $this->config->get('GoExpress.senderCountry', 'DE');
-            $senderPostalCode     = $this->config->get('GoExpress.senderPostalCode', '36272');
-            $senderTown           = $this->config->get('GoExpress.senderTown', 'Niederaula');
-
-			$senderAddress = pluginApp(Abholadresse::class, [
-				$senderName,
-				$senderStreet,
-				$senderNo,
-				$senderCountry,
-				$senderPostalCode,
-				$senderTown
-			]);
-
-			// 
-			// WARNING: shipments can no longer be registered for the current day after 3 p.m.
-			//			if it is done anyway, it will result in a webservice error.
-			//          maybe this should be catched and the date adjusted accordingly!
-			//
-			$pickupDate = pluginApp(Abholdatum::class, [
-				date('d.m.Y'),
-				$this->config->get('GoExpress.pickupTimeFrom', '15:30'),
-				$this->config->get('GoExpress.pickupTimeTo', '18:30')
 			]);
 
             // gets order shipping packages from current order

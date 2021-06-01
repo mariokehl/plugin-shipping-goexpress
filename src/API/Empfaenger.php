@@ -64,14 +64,14 @@ class Empfaenger {
      */
     public function __construct($Firmenname1, $Strasse1, $Hausnummer, $Land, $Postleitzahl, $Stadt, $Email, $Firmenname2 = '')
     {
-        $this->Firmenname1    = $Firmenname1;
-        $this->Firmenname2    = $Firmenname2;
-        $this->Strasse1       = $Strasse1;
-        $this->Hausnummer     = $Hausnummer;
-        $this->Land           = $Land;
-        $this->Postleitzahl   = $Postleitzahl;
-        $this->Stadt          = $Stadt;
-        $this->Email          = $Email;
+        $this->Firmenname1    = substr($Firmenname1, 0, 60);
+        $this->Firmenname2    = substr($Firmenname2, 0, 60);
+        $this->Strasse1       = substr($Strasse1, 0, 35);
+        $this->Hausnummer     = substr($Hausnummer, 0, 10);
+        $this->Land           = substr($Land, 0, 13);
+        $this->Postleitzahl   = substr($Postleitzahl, 0, 9);
+        $this->Stadt          = substr($Stadt, 0, 30);
+        $this->Email          = substr($Email, 0, 100);
     }
 
 }
