@@ -98,7 +98,11 @@ class SendungsDaten {
         $this->Kundenreferenz = $Kundenreferenz;
         $this->Abholadresse = $Abholadresse;
         $this->Empfaenger = $Empfaenger;
-        $this->Service = Service::Overnight;
+        if (trim($Empfaenger->Land) === 'DE') {
+            $this->Service = Service::Overnight;
+        } else {
+            $this->Service = Service::International;
+        }
         $this->Abholdatum = $Abholdatum;
         $this->unfrei = KzUnfrei::frei;
         $this->Selbstanlieferung = KzSelbstanlieferung::Abholung;
