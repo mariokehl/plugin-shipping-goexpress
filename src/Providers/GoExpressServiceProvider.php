@@ -1,4 +1,5 @@
 <?php
+
 namespace GoExpress\Providers;
 
 use Plenty\Modules\Order\Shipping\ServiceProvider\Services\ShippingServiceProviderService;
@@ -11,12 +12,12 @@ use Plenty\Plugin\ServiceProvider;
 class GoExpressServiceProvider extends ServiceProvider
 {
 
-	/**
-	 * Register the service provider.
-	 */
-	public function register()
-	{
-	    //$this->getApplication()->register(GoExpressRouteServiceProvider::class);
+    /**
+     * Register the service provider.
+     */
+    public function register()
+    {
+        //$this->getApplication()->register(GoExpressRouteServiceProvider::class);
     }
 
     public function boot(ShippingServiceProviderService $shippingServiceProviderService)

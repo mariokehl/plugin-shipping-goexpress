@@ -26,6 +26,13 @@
   },
   {
     "tab": "Sender",
+    "key": "senderId",
+    "label": "AX4 ID",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "tab": "Sender",
     "key": "senderName",
     "label": "Name",
     "type": "text",

@@ -2,8 +2,8 @@
 
 namespace GoExpress\API;
 
-class Sendung {
-
+class Sendung
+{
     /**
      * @var integer $SendungsnummerAX4
      * @access public
@@ -56,5 +56,4 @@ class Sendung {
         $this->Zustelldatum = $Zustelldatum;
         $this->Position = $Position;
     }
-
 }

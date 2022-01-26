@@ -2,7 +2,8 @@
 
 namespace GoExpress\API;
 
-class Abholadresse {
+class Abholadresse
+{
 
     /**
      * @var string $Firmenname1
@@ -51,12 +52,11 @@ class Abholadresse {
      */
     public function __construct($Firmenname1, $Strasse1, $Hausnummer, $Land, $Postleitzahl, $Stadt)
     {
-        $this->Firmenname1    = $Firmenname1;
-        $this->Strasse1       = $Strasse1;
-        $this->Hausnummer     = $Hausnummer;
-        $this->Land           = $Land;
-        $this->Postleitzahl   = $Postleitzahl;
-        $this->Stadt          = $Stadt;
+        $this->Firmenname1 = $Firmenname1;
+        $this->Strasse1 = $Strasse1;
+        $this->Hausnummer = $Hausnummer;
+        $this->Land = $Land;
+        $this->Postleitzahl = $Postleitzahl;
+        $this->Stadt = $Stadt;
     }
-
 }

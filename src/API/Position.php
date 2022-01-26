@@ -2,8 +2,8 @@
 
 namespace GoExpress\API;
 
-class Position {
-
+class Position
+{
     /**
      * @var integer $PositionsNr
      * @access public
@@ -34,5 +34,4 @@ class Position {
         $this->AnzahlPackstuecke = $AnzahlPackstuecke;
         $this->Barcodes = $Barcodes;
     }
-
 }

@@ -2,8 +2,8 @@
 
 namespace GoExpress\API;
 
-class SendungsDaten {
-
+class SendungsDaten
+{
     /**
      * @var integer $Versender
      * @access public
@@ -26,7 +26,7 @@ class SendungsDaten {
      * @var string $Kundenreferenz
      * @access public
      */
-    public $Kundenreferenz = null;    
+    public $Kundenreferenz = null;
 
     /**
      * @var Abholadresse $Abholadresse
@@ -83,6 +83,7 @@ class SendungsDaten {
     public $SendungsPosition = null;
 
     /**
+     * @param integer $Versender
      * @param Empfaenger $Empfaenger
      * @param Abholadresse $Abholadresse
      * @param Abholdatum $Abholdatum
@@ -91,9 +92,16 @@ class SendungsDaten {
      * @param string $Zustellhinweise
      * @access public
      */
-    public function __construct($Empfaenger, $Abholadresse, $Abholdatum, $SendungsPosition, $Kundenreferenz, $Zustellhinweise = '')
-    {
-        $this->Versender = Versender::__default;
+    public function __construct(
+        $Versender,
+        $Empfaenger,
+        $Abholadresse,
+        $Abholdatum,
+        $SendungsPosition,
+        $Kundenreferenz,
+        $Zustellhinweise = ''
+    ) {
+        $this->Versender = $Versender;
         $this->Status = Status::freigegeben;
         $this->Kundenreferenz = $Kundenreferenz;
         $this->Abholadresse = $Abholadresse;
@@ -111,4 +119,13 @@ class SendungsDaten {
         $this->SendungsPosition = $SendungsPosition;
     }
 
+    /**
+     * Set the value of Versender
+     */
+    public function setVersender($Versender): self
+    {
+        $this->Versender = $Versender;
+
+        return $this;
+    }
 }
