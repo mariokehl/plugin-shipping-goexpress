@@ -14,7 +14,7 @@ In order to use this plugin, you must register as a sender with GO! be registere
 
 - Phone: 0800 / 859 99 99
 - [Email](mailto:info@general-overnight.com)
-- [Contact form](https://www.general-overnight.com/deu_de/online-services/kontakt.html)
+- [Contact form](https://www.general-overnight.com/deu_en/online-services/contact.html)
 
 When contacting, please mention that you have the plentymarkets plugin for GO! Express found here in the Marketplace.
 
@@ -28,7 +28,7 @@ To get started, you must first enable API access.
 
 1. Open the menu **Plugins » Plugin-Set-Übersicht**.
 2. Select the desired plugin set.
-3. Click **GO! Express**.<br />→ A new view will open.
+3. Click **GO! Express**.<br>→ A new view will open.
 4. Select the **General** section in the accordion.
 5. Enter your username and password.
 6. **Save** the settings.
@@ -45,9 +45,23 @@ Enter your address data according to registration in the **Sender** area. You ca
 
 If the plugin has been successfully installed and the tests have been successful, it is time to make the shipping service provider selectable as an option in the checkout of your shop.
 
-1. Activate your **[delivery countries](https://knowledge.plentymarkets.com/fulfillment/versand-preparen#100)**
-2. Create your (shipping)**[regions](https://knowledge.plentymarkets.com/fulfillment/versand-prepare#400)**
-3. Create your **[Shipping Service Provider](https://knowledge.plentymarkets.com/fulfillment/versand-prebereiten#800)** _**GO! Express**_
+1. Activate your **[delivery countries](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#100)**
+2. Create your (shipping)**[regions](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#400)**
+3. Create your **[Shipping Service Provider](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#800)** _**GO! Express**_
   * Choose _**GO! Express**_ in the _Shipping Service Provider_ column
-  * Store `https://www.general-overnight.com/deu_de/sendungs ​​Tracking.html?reference=$paketNr` as tracking URL
-4. Create your **[shipping profiles](https://knowledge.plentymarkets.com/fulfillment/prepare-shipping#1000)** and **[postage tables](https://knowledge.plentymarkets.com/fulfillment/prepare-shipping#1500)** for _**GO! Express**_
+  * Store `https://www.general-overnight.com/deu_en/sendungsverfolgung.html?reference=$PaketNr` as tracking URL
+4. Create your **[shipping profiles](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#1000)** and **[table of shipping charges](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#1500)** for _**GO! Express**_
+
+### GDPR: Information on data transmission (e-mail and telephone)
+
+You can configure this in your shipping profile using the option **[Transfer email and phone](https://knowledge.plentymarkets.com/en/slp/business-entscheidungen/rechtliches/dsgvo#700)**. The customer's e-mail address is in the interface of GO! a required field. So you have to transfer these at least in some form.
+
+<div class="alert alert-warning" role="alert">
+    If you have activated the <strong>Agreement upon data transfer</strong> checkbox: If the person does not agree to the transfer of data and you have not entered an alternative email address in the shipping profile, an error message will be displayed and the order cannot be sent to GO! be registered.
+</div>
+
+---
+
+<div class="alert alert-danger" role="alert">
+    Due to format restrictions within the interface (separate fields for country code, area code, number), the phone number is currently not transmitted under any circumstances.
+</div>

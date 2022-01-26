@@ -28,7 +28,7 @@ Für deinen Einstieg musst du zunächst den API-Zugriff ermöglichen.
 
 1. Öffne das Menü **Plugins » Plugin-Set-Übersicht**.
 2. Wähle das gewünschte Plugin-Set aus.
-3. Klicke auf **GO! Express**.<br />→ Eine neue Ansicht öffnet sich.
+3. Klicke auf **GO! Express**.<br>→ Eine neue Ansicht öffnet sich.
 4. Wähle den Bereich **General** im Akkordeon.
 5. Trage deinen Benutzernamen und dein Passwort ein.
 6. **Speichere** die Einstellungen.
@@ -51,3 +51,17 @@ Wenn das Plugin erfolgreich installiert und die Tests erfolgreich verlaufen sind
   * Wähle _**GO! Express**_ in der Spalte _Versanddienstleister_ aus
   * Hinterlege `https://www.general-overnight.com/deu_de/sendungsverfolgung.html?reference=$PaketNr` als Tracking-URL
 4. Erstelle deine **[Versandprofile](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#1000)** und **[Portotabellen](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#1500)** für _**GO! Express**_
+
+### DSGVO: Informationen zur Datenübermittlung (E-Mail und Telefon)
+
+Du kannst in deinem Versandprofil über die Option **[E-Mail und Telefon übertragen](https://knowledge.plentymarkets.com/business-entscheidungen/rechtliches/dsgvo#700)** diesbezüglich Konfigurationen vornehmen. Die E-Mail-Adresse des Kunden ist in der Schnittstelle von GO! ein Pflichtfeld. Du musst diese also mindestens in irgendeiner Form mit übertragen.
+
+<div class="alert alert-warning" role="alert">
+    Falls du die Checkbox <strong>Einwilligung zur Datenübermittlung</strong> aktiviert hast: Wenn die Person der Übertragung der Daten nicht zustimmt und du keine alternative E-Mail-Adresse im Versandprofil eingegeben hast, wird eine Fehlermeldung angezeigt und der Auftrag kann nicht bei GO! angemeldet werden.
+</div>
+
+---
+
+<div class="alert alert-danger" role="alert">
+    Aufgrund von Formateinschränkungen innerhalb der Schnittstelle (separate Felder für Ländercode, Ortsvorwahl, Nummer) wird die Telefonnummer derzeit in keinem Fall übermittelt.
+</div>
