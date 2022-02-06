@@ -8,7 +8,7 @@ Use this plugin to run GO! to integrate into your plentymarkets system. It is th
 
 ## Quickstart
 
-In order to use this plugin, you must register as a sender with GO! be registered. You will then receive a username and password to configure the plugin.
+In order to use this plugin, you must be registered as a sender at GO!. You will receive a username and password to configure the plugin afterwards.
 
 **Use for your registration at GO! Express one of the following ways:**
 
@@ -65,3 +65,5 @@ You can configure this in your shipping profile using the option **[Transfer ema
 <div class="alert alert-danger" role="alert">
     Due to format restrictions within the interface (separate fields for country code, area code, number), the phone number is currently not transmitted under any circumstances.
 </div>
+
+<sub><sup>Every single purchase helps with constant further development and the implementation of user requests. Thanks very much!</sup></sub>

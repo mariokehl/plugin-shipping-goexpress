@@ -65,3 +65,5 @@ Du kannst in deinem Versandprofil über die Option **[E-Mail und Telefon übertr
 <div class="alert alert-danger" role="alert">
     Aufgrund von Formateinschränkungen innerhalb der Schnittstelle (separate Felder für Ländercode, Ortsvorwahl, Nummer) wird die Telefonnummer derzeit in keinem Fall übermittelt.
 </div>
+
+<sub><sup>Jeder einzelne Kauf hilft bei der ständigen Weiterentwicklung und der Umsetzung von Userwünschen. Vielen Dank!</sup></sub>
