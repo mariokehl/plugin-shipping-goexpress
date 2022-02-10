@@ -10,7 +10,7 @@
       "type": "shipping",
       "isClosedSource": "true",
       "serviceProvider": "GoExpress\\Providers\\GoExpressServiceProvider",
-      "version": "0.1.5",
+      "version": "1.0.0",
       "license": "",
       "pluginIcon": "icon_plugin_xs.png",
       "price": 79.99,
