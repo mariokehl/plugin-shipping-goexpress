@@ -8,7 +8,7 @@
       },
       "namespace": "GoExpress",
       "type": "shipping",
-      "isClosedSource": "true",
+      "isClosedSource": true,
       "serviceProvider": "GoExpress\\Providers\\GoExpressServiceProvider",
       "version": "1.0.0",
       "license": "",
