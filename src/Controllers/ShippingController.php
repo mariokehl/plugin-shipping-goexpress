@@ -109,15 +109,15 @@ class ShippingController extends Controller
 		$this->config = $config;
 
 		// Get credentials by UI config
-		$partnerCredentialsUser = $this->config->get('GoExpress.username');
-		$partnerCredentialsPass = $this->config->get('GoExpress.password');
+		$partnerCredentialsUser = $this->config->get('GoExpress.global.username');
+		$partnerCredentialsPass = $this->config->get('GoExpress.global.password');
 
 		$this->webservice = pluginApp(GOWebService::class, [
 			[
 				'login' => $partnerCredentialsUser,
 				'password' => $partnerCredentialsPass
 			],
-			$this->config->get('GoExpress.mode')
+			$this->config->get('GoExpress.global.mode')
 		]);
 	}
 
@@ -137,12 +137,12 @@ class ShippingController extends Controller
 		$shipmentDate = date('Y-m-d');
 
 		// reads sender data from plugin config
-		$senderName = $this->config->get('GoExpress.senderName', '');
-		$senderStreet = $this->config->get('GoExpress.senderStreet', '');
-		$senderNo = $this->config->get('GoExpress.senderNo', '');
-		$senderCountry = $this->config->get('GoExpress.senderCountry', '');
-		$senderPostalCode = $this->config->get('GoExpress.senderPostalCode', '');
-		$senderTown = $this->config->get('GoExpress.senderTown', '');
+		$senderName = $this->config->get('GoExpress.sender.senderName', '');
+		$senderStreet = $this->config->get('GoExpress.sender.senderStreet', '');
+		$senderNo = $this->config->get('GoExpress.sender.senderNo', '');
+		$senderCountry = $this->config->get('GoExpress.sender.senderCountry', '');
+		$senderPostalCode = $this->config->get('GoExpress.sender.senderPostalCode', '');
+		$senderTown = $this->config->get('GoExpress.sender.senderTown', '');
 
 		$senderAddress = pluginApp(Abholadresse::class, [
 			$senderName,
@@ -161,13 +161,13 @@ class ShippingController extends Controller
 		 */
 		$pickupDate = pluginApp(Abholdatum::class, [
 			date('d.m.Y'),
-			$this->config->get('GoExpress.pickupTimeFrom', '15:30'),
-			$this->config->get('GoExpress.pickupTimeTo', '18:30')
+			$this->config->get('GoExpress.shipping.pickupTimeFrom', '15:30'),
+			$this->config->get('GoExpress.shipping.pickupTimeTo', '18:30')
 		]);
 
 		foreach ($orderIds as $orderId) {
 			$order = $this->orderRepository->findOrderById($orderId);
-			$this->getLogger(__METHOD__)->debug('GoExpress::plenty.Order', ['order' => json_encode($order)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => json_encode($order)]);
 
 			// gathering required data for registering the shipment
 
@@ -230,7 +230,7 @@ class ShippingController extends Controller
 			$reference = substr('Auftragsnummer: ' . $orderId, 0, 35);
 
 			// overwrite default delivery notice from comments (must contain @goexpress)
-			$deliveryNotice = $this->config->get('GoExpress.deliveryNotice', '');
+			$deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
 			/** @var Comment $comment */
 			foreach ($order->comments as $comment) {
 				if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
@@ -252,7 +252,7 @@ class ShippingController extends Controller
 				 * @var SendungsDaten $shipmentData
 				 */
 				$shipmentData = pluginApp(SendungsDaten::class, [
-					intval($this->config->get('GoExpress.senderId', '')),
+					intval($this->config->get('GoExpress.sender.senderId', '')),
 					$receiverAddress,
 					$senderAddress,
 					$pickupDate,
@@ -261,9 +261,9 @@ class ShippingController extends Controller
 					$deliveryNotice
 				]);
 
-				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
+				$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
 				$shipment = $this->webservice->GOWebService_SendungsErstellung($shipmentData);
-				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
+				$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
 
 				$shipmentItems = [];
 				if (isset($shipment->Sendung)) {
@@ -272,9 +272,9 @@ class ShippingController extends Controller
 						$shipment->Sendung->SendungsnummerAX4
 					]);
 
-					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFLabelAnfrage', ['labelData' => json_encode($labelData)]);
+					$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.PDFLabelAnfrage', ['labelData' => json_encode($labelData)]);
 					$labels = $this->webservice->GOWebService_PDFLabel($labelData);
-					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFs', ['labels' => count($labels->Sendung)]);
+					$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.PDFs', ['labels' => count($labels->Sendung)]);
 
 					// handles the response
 					$shipmentItems = $this->handleAfterRegisterShipment($labels, $firstPackageId);
@@ -298,7 +298,7 @@ class ShippingController extends Controller
 					);
 				}
 			} catch (\SoapFault $soapFault) {
-				$this->getLogger(__METHOD__)->critical('GoExpress::webservice.SOAPerr', ['soapFault' => json_encode($soapFault)]);
+				$this->getLogger(__METHOD__)->critical('GoExpress::Webservice.SOAPerr', ['soapFault' => json_encode($soapFault)]);
 				$this->handleSoapFault($soapFault);
 			}
 		}
@@ -538,7 +538,7 @@ class ShippingController extends Controller
 					continue;
 				}
 				$labelKey = explode('/', $result->labelPath)[1];
-				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['labelKey' => $labelKey]);
+				$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['labelKey' => $labelKey]);
 
 				if ($this->storageRepository->doesObjectExist(self::PLUGIN_KEY, $labelKey)) {
 					$storageObject = $this->storageRepository->getObject(self::PLUGIN_KEY, $labelKey);
@@ -564,12 +564,12 @@ class ShippingController extends Controller
 
 		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($shipmentData->PDFs->Routerlabel)) {
 			$shipmentNumber = $shipmentData->Frachtbriefnummer;
-			$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['length' => strlen($shipmentData->PDFs->Routerlabel)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['length' => strlen($shipmentData->PDFs->Routerlabel)]);
 			$storageObject = $this->saveLabelToS3(
 				$shipmentData->PDFs->Routerlabel,
 				$packageId . '.pdf'
 			);
-			$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['storageObject' => json_encode($storageObject)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['storageObject' => json_encode($storageObject)]);
 
 			$shipmentItems[] = $this->buildShipmentItems(
 				'path_to_pdf_in_S3',
