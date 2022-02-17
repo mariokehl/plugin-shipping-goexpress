@@ -114,6 +114,10 @@ class ShippingController extends Controller
 
 		$this->webservice = pluginApp(GOWebService::class, [
 			[
+				'wsdl' => [
+					'DEMO' => $this->config->get('GoExpress.global.container.webserviceDemoUri'),
+					'FINAL' =>  $this->config->get('GoExpress.global.container.webserviceFinalUri')
+				],
 				'login' => $partnerCredentialsUser,
 				'password' => $partnerCredentialsPass
 			],

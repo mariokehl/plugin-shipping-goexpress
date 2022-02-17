@@ -22,6 +22,30 @@
             ]
           }
         },
+        "global.container": {
+          "type": "verticalContainer",
+          "label": "Config.GlobalContainerLabel",
+          "options": {
+            "containerEntries": {
+              "global.container.webserviceDemoUri": {
+                "type": "inputText",
+                "label": "Config.GlobalDemoWebserviceUri",
+                "required": true,
+                "options": {
+                  "defaultValue": "https://wsdemo.ax4.com/ws/GeneralOvernight/SendungsDaten"
+                }
+              },
+              "global.container.webserviceFinalUri": {
+                "type": "inputText",
+                "label": "Config.GlobalFinalWebserviceUri",
+                "required": true,
+                "options": {
+                  "defaultValue": "https://webservice.ax4.com/ws/GeneralOvernight/SendungsDaten"
+                }
+              }
+            }
+          }
+        },
         "global.username": {
           "type": "inputText",
           "required": true,
