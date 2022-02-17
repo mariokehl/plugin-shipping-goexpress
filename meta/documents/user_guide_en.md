@@ -4,7 +4,7 @@ GO! Express & Logistics is the largest independent provider of express and couri
 
 A courier service is ideal for time-sensitive or high-value goods shipments. A classic application is, for example, shipping food that needs to be frozen overnight so that the cold chain is not interrupted.
 
-Use this plugin to run GO! to integrate into your plentymarkets system. It is then possible to carry out the familiar step of registering the shipping order in the shipping center and in the plentymarkets client.
+Use this plugin to run GO! to integrate into your plentymarkets system. It is then possible to carry out the familiar step of registering the shipping order in the shipping center and in plentyBase.
 
 ## Quickstart
 
@@ -26,10 +26,10 @@ As soon as you have received the user data from GO! are available, you can store
 
 To get started, you must first enable API access.
 
-1. Open the menu **Plugins » Plugin-Set-Übersicht**.
+1. Open the menu **Plugins » Plugin set overview**.
 2. Select the desired plugin set.
 3. Click **GO! Express**.<br>→ A new view will open.
-4. Select the **General** section in the accordion.
+4. Select the **Global** section from the list.
 5. Enter your username and password.
 6. **Save** the settings.
 
@@ -52,9 +52,9 @@ If the plugin has been successfully installed and the tests have been successful
   * Store `https://www.general-overnight.com/deu_en/sendungsverfolgung.html?reference=$PaketNr` as tracking URL
 4. Create your **[shipping profiles](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#1000)** and **[table of shipping charges](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#1500)** for _**GO! Express**_
 
-### GDPR: Information on data transmission (e-mail and telephone)
+### GDPR: Information on data transmission (email and telephone)
 
-You can configure this in your shipping profile using the option **[Transfer email and phone](https://knowledge.plentymarkets.com/en/slp/business-entscheidungen/rechtliches/dsgvo#700)**. The customer's e-mail address is in the interface of GO! a required field. So you have to transfer these at least in some form.
+You can configure this in your shipping profile using the option **[Transfer email and phone](https://knowledge.plentymarkets.com/en/slp/business-entscheidungen/rechtliches/dsgvo#700)**. The customer's email address is in the interface of GO! a required field. So you have to transfer these at least in some form.
 
 <div class="alert alert-warning" role="alert">
     If you have activated the <strong>Agreement upon data transfer</strong> checkbox: If the person does not agree to the transfer of data and you have not entered an alternative email address in the shipping profile, an error message will be displayed and the order cannot be sent to GO! be registered.
@@ -65,5 +65,9 @@ You can configure this in your shipping profile using the option **[Transfer ema
 <div class="alert alert-danger" role="alert">
     Due to format restrictions within the interface (separate fields for country code, area code, number), the phone number is currently not transmitted under any circumstances.
 </div>
+
+## Credits
+
+This plugin was kindly funded by [beefgourmet.de](https://www.beefgourmet.de/).
 
 <sub><sup>Every single purchase helps with constant further development and the implementation of user requests. Thanks very much!</sup></sub>

@@ -4,7 +4,7 @@ GO! Express & Logistics ist der größte konzernunabhängige Anbieter von Expres
 
 Ein Kurierdienst eignet sich hervorragend für zeitkritische oder hochwertige Warensendungen. Klassischer Anwendungsfall ist z.B. der Versand von tiefkühlpflichtigen Lebensmitteln über Nacht, so dass die Kühlkette nicht unterbrochen wird.
 
-Verwende dieses Plugin, um GO! in deinem plentymarkets System zu integrieren. Danach ist es möglich, den bekannten Arbeitsschritt der Versandauftragsanmeldung im Versand-Center sowie im plentymarkets Client durchzuführen. 
+Verwende dieses Plugin, um GO! in deinem plentymarkets System zu integrieren. Danach ist es möglich, den bekannten Arbeitsschritt der Versandauftragsanmeldung im Versand-Center sowie in plentyBase durchzuführen. 
 
 ## Quickstart
 
@@ -29,7 +29,7 @@ Für deinen Einstieg musst du zunächst den API-Zugriff ermöglichen.
 1. Öffne das Menü **Plugins » Plugin-Set-Übersicht**.
 2. Wähle das gewünschte Plugin-Set aus.
 3. Klicke auf **GO! Express**.<br>→ Eine neue Ansicht öffnet sich.
-4. Wähle den Bereich **General** im Akkordeon.
+4. Wähle den Bereich **Allgemein** aus der Liste.
 5. Trage deinen Benutzernamen und dein Passwort ein.
 6. **Speichere** die Einstellungen.
 
@@ -65,5 +65,9 @@ Du kannst in deinem Versandprofil über die Option **[E-Mail und Telefon übertr
 <div class="alert alert-danger" role="alert">
     Aufgrund von Formateinschränkungen innerhalb der Schnittstelle (separate Felder für Ländercode, Ortsvorwahl, Nummer) wird die Telefonnummer derzeit in keinem Fall übermittelt.
 </div>
+
+## Credits
+
+Dieses Plugin wurde mit freundlicher Unterstützung von [beefgourmet.de](https://www.beefgourmet.de/) finanziert.
 
 <sub><sup>Jeder einzelne Kauf hilft bei der ständigen Weiterentwicklung und der Umsetzung von Userwünschen. Vielen Dank!</sup></sub>
