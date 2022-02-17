@@ -2,10 +2,9 @@
 
 namespace GoExpress\API;
 
-class Status {
-
-    const neu         = 1;
+class Status
+{
+    const neu = 1;
     const freigegeben = 3;
-    const Storno      = 20;
-
+    const Storno = 20;
 }

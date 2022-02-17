@@ -2,7 +2,6 @@
 
 namespace GoExpress\Controllers;
 
-use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
 use Plenty\Modules\Account\Address\Models\Address;
 use Plenty\Modules\Cloud\Storage\Models\StorageObject;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
@@ -29,28 +28,12 @@ use Plenty\Plugin\Log\Loggable;
  */
 class ShippingController extends Controller
 {
-
 	use Loggable;
-
-	/**
-	 * @var Request
-	 */
-	private $request;
-
-    /**
-     * @var GOWebService $webservice
-     */
-    private $webservice;
 
 	/**
 	 * @var OrderRepositoryContract $orderRepository
 	 */
 	private $orderRepository;
-
-	/**
-	 * @var AddressRepositoryContract $addressRepository
-	 */
-	private $addressRepository;
 
 	/**
 	 * @var OrderShippingPackageRepositoryContract $orderShippingPackage
@@ -72,51 +55,51 @@ class ShippingController extends Controller
 	 */
 	private $shippingPackageTypeRepositoryContract;
 
-    /**
-     * @var array
-     */
-    private $createOrderResult = [];
+	/**
+	 * @var array
+	 */
+	private $createOrderResult = [];
 
-    /**
-     * @var ConfigRepository
-     */
-    private $config;
+	/**
+	 * @var ConfigRepository
+	 */
+	private $config;
+
+	/**
+	 * @var GOWebService $webservice
+	 */
+	private $webservice;
 
 	/**
 	 * Shipment constants
 	 */
-	const DEFAULT_PACKAGE_NAME		= 'Wareninhalt';
-	const MINIMUM_FALLBACK_WEIGHT	= 0.2;
+	const DEFAULT_PACKAGE_NAME = 'Wareninhalt';
+	const MINIMUM_FALLBACK_WEIGHT = 0.2;
 
-    /**
-     * Plugin key
-     */
-    const PLUGIN_KEY = 'GoExpress';
+	/**
+	 * Plugin key
+	 */
+	const PLUGIN_KEY = 'GoExpress';
 
 	/**
 	 * ShipmentController constructor.
-     *
-	 * @param Request $request
+	 *
 	 * @param OrderRepositoryContract $orderRepository
-	 * @param AddressRepositoryContract $addressRepositoryContract
 	 * @param OrderShippingPackageRepositoryContract $orderShippingPackage
 	 * @param StorageRepositoryContract $storageRepository
 	 * @param ShippingInformationRepositoryContract $shippingInformationRepositoryContract
 	 * @param ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract
-     * @param ConfigRepository $config
-     */
-	public function __construct(Request $request,
-								OrderRepositoryContract $orderRepository,
-								AddressRepositoryContract $addressRepositoryContract,
-								OrderShippingPackageRepositoryContract $orderShippingPackage,
-								StorageRepositoryContract $storageRepository,
-								ShippingInformationRepositoryContract $shippingInformationRepositoryContract,
-								ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract,
-                                ConfigRepository $config)
-	{
-		$this->request = $request;
+	 * @param ConfigRepository $config
+	 */
+	public function __construct(
+		OrderRepositoryContract $orderRepository,
+		OrderShippingPackageRepositoryContract $orderShippingPackage,
+		StorageRepositoryContract $storageRepository,
+		ShippingInformationRepositoryContract $shippingInformationRepositoryContract,
+		ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract,
+		ConfigRepository $config
+	) {
 		$this->orderRepository = $orderRepository;
-		$this->addressRepository = $addressRepositoryContract;
 		$this->orderShippingPackage = $orderShippingPackage;
 		$this->storageRepository = $storageRepository;
 
@@ -126,15 +109,15 @@ class ShippingController extends Controller
 		$this->config = $config;
 
 		// Get credentials by UI config
-		$partnerCredentialsUser = $this->config->get('GoExpress.username');
-        $partnerCredentialsPass = $this->config->get('GoExpress.password');
+		$partnerCredentialsUser = $this->config->get('GoExpress.global.username');
+		$partnerCredentialsPass = $this->config->get('GoExpress.global.password');
 
 		$this->webservice = pluginApp(GOWebService::class, [
 			[
 				'login' => $partnerCredentialsUser,
 				'password' => $partnerCredentialsPass
 			],
-			$this->config->get('GoExpress.mode')
+			$this->config->get('GoExpress.global.mode')
 		]);
 	}
 
@@ -154,12 +137,12 @@ class ShippingController extends Controller
 		$shipmentDate = date('Y-m-d');
 
 		// reads sender data from plugin config
-		$senderName           = $this->config->get('GoExpress.senderName', 'Fleischerei Schäfer OHG');
-		$senderStreet         = $this->config->get('GoExpress.senderStreet', 'Hersfelder Str.');
-		$senderNo             = $this->config->get('GoExpress.senderNo', '20');
-		$senderCountry        = $this->config->get('GoExpress.senderCountry', 'DE');
-		$senderPostalCode     = $this->config->get('GoExpress.senderPostalCode', '36272');
-		$senderTown           = $this->config->get('GoExpress.senderTown', 'Niederaula');
+		$senderName = $this->config->get('GoExpress.sender.senderName', '');
+		$senderStreet = $this->config->get('GoExpress.sender.senderStreet', '');
+		$senderNo = $this->config->get('GoExpress.sender.senderNo', '');
+		$senderCountry = $this->config->get('GoExpress.sender.senderCountry', '');
+		$senderPostalCode = $this->config->get('GoExpress.sender.senderPostalCode', '');
+		$senderTown = $this->config->get('GoExpress.sender.senderTown', '');
 
 		$senderAddress = pluginApp(Abholadresse::class, [
 			$senderName,
@@ -170,26 +153,26 @@ class ShippingController extends Controller
 			$senderTown
 		]);
 
-		// 
-		// WARNING: shipments can no longer be registered for the current day after 3 p.m.
-		//			if it is done anyway, it will result in a webservice error.
-		//          maybe this should be catched and the date adjusted accordingly!
-		//
+		/**
+		 * WARNING: shipments can no longer be registered for the current day after 3 p.m.
+		 * If it is done anyway, it will result in a webservice error. Maybe this should be catched and the date adjusted accordingly!
+		 * 
+		 * @var Abholdatum $pickupDate
+		 */
 		$pickupDate = pluginApp(Abholdatum::class, [
 			date('d.m.Y'),
-			$this->config->get('GoExpress.pickupTimeFrom', '15:30'),
-			$this->config->get('GoExpress.pickupTimeTo', '18:30')
+			$this->config->get('GoExpress.shipping.pickupTimeFrom', '15:30'),
+			$this->config->get('GoExpress.shipping.pickupTimeTo', '18:30')
 		]);
 
-		foreach ($orderIds as $orderId)
-		{
+		foreach ($orderIds as $orderId) {
 			$order = $this->orderRepository->findOrderById($orderId);
-			$this->getLogger(__METHOD__)->debug('GoExpress::plenty.Order', ['order' => json_encode($order)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => json_encode($order)]);
 
-            // gathering required data for registering the shipment
+			// gathering required data for registering the shipment
 
-            /** @var Address $address */
-            $address = $order->deliveryAddress;
+			/** @var Address $address */
+			$address = $order->deliveryAddress;
 
 			$receiverName1 = implode(' ', [$address->firstName, $address->lastName]);
 			$receiverName2 = null;
@@ -197,12 +180,12 @@ class ShippingController extends Controller
 				$receiverName2 = $receiverName1;
 				$receiverName1 = $address->companyName;
 			}
-            $receiverStreet        = $address->street;
-            $receiverNo            = $address->houseNumber;
-			$receiverCountry       = $address->country->isoCode2;
-            $receiverPostalCode    = $address->postalCode;
-            $receiverTown          = $address->town;
-			$receiverEmail 		   = $address->email;
+			$receiverStreet = $address->street;
+			$receiverNo = $address->houseNumber;
+			$receiverCountry = $address->country->isoCode2;
+			$receiverPostalCode = $address->postalCode;
+			$receiverTown = $address->town;
+			$receiverEmail = $address->email;
 
 			$receiverAddress = pluginApp(Empfaenger::class, [
 				$receiverName1,
@@ -215,18 +198,17 @@ class ShippingController extends Controller
 				$receiverName2
 			]);
 
-            // gets order shipping packages from current order
-            $packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
+			// gets order shipping packages from current order
+			$packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
 
 			// package sums
-			$firstPackageId   = null;
+			$firstPackageId = null;
 			$firstPackageName = self::DEFAULT_PACKAGE_NAME;
-			$packageWeights   = 0.0; // kilograms
+			$packageWeights = 0.0; // kilograms
 
-            // iterating through packages
+			// iterating through packages
 			$packageCount = 0;
-            foreach ($packages as $key => $package)
-            {
+			foreach ($packages as $key => $package) {
 				if ($packageCount === 0) {
 					$firstPackageId = $package->id;
 					$packageType = $this->shippingPackageTypeRepositoryContract->findShippingPackageTypeById($package->packageId);
@@ -245,10 +227,10 @@ class ShippingController extends Controller
 			]);
 
 			// customer reference
-			$reference = substr('Auftragsnummer: '.$orderId, 0, 35);
+			$reference = substr('Auftragsnummer: ' . $orderId, 0, 35);
 
 			// overwrite default delivery notice from comments (must contain @goexpress)
-			$deliveryNotice = $this->config->get('GoExpress.deliveryNotice', '');
+			$deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
 			/** @var Comment $comment */
 			foreach ($order->comments as $comment) {
 				if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
@@ -263,10 +245,14 @@ class ShippingController extends Controller
 				}
 			}
 
-			try
-			{
-				// register shipment
+			try {
+				/**
+				 * Register shipment
+				 * 
+				 * @var SendungsDaten $shipmentData
+				 */
 				$shipmentData = pluginApp(SendungsDaten::class, [
+					intval($this->config->get('GoExpress.sender.senderId', '')),
 					$receiverAddress,
 					$senderAddress,
 					$pickupDate,
@@ -275,21 +261,20 @@ class ShippingController extends Controller
 					$deliveryNotice
 				]);
 
-				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
+				$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
 				$shipment = $this->webservice->GOWebService_SendungsErstellung($shipmentData);
-				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
+				$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
 
 				$shipmentItems = [];
-				if (isset($shipment->Sendung))
-				{
+				if (isset($shipment->Sendung)) {
 					// request labels
 					$labelData = pluginApp(PDFLabelAnfrage::class, [
 						$shipment->Sendung->SendungsnummerAX4
 					]);
 
-					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFLabelAnfrage', ['labelData' => json_encode($labelData)]);
+					$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.PDFLabelAnfrage', ['labelData' => json_encode($labelData)]);
 					$labels = $this->webservice->GOWebService_PDFLabel($labelData);
-					$this->getLogger(__METHOD__)->debug('GoExpress::webservice.PDFs', ['labels' => count($labels->Sendung)]);
+					$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.PDFs', ['labels' => count($labels->Sendung)]);
 
 					// handles the response
 					$shipmentItems = $this->handleAfterRegisterShipment($labels, $firstPackageId);
@@ -304,9 +289,7 @@ class ShippingController extends Controller
 
 					// saves shipping information
 					$this->saveShippingInformation($orderId, $shipmentDate, $shipmentItems);
-				}
-				else
-				{
+				} else {
 					$this->createOrderResult[$orderId] = $this->buildResultArray(
 						false,
 						explode("\n", $this->webservice->__getLastResponseHeaders())[0],
@@ -314,74 +297,62 @@ class ShippingController extends Controller
 						$shipmentItems
 					);
 				}
-
-			}
-			catch (\SoapFault $soapFault) {
-				$this->getLogger(__METHOD__)->critical('GoExpress::webservice.SOAPerr', ['soapFault' => json_encode($soapFault)]);
+			} catch (\SoapFault $soapFault) {
+				$this->getLogger(__METHOD__)->critical('GoExpress::Webservice.SOAPerr', ['soapFault' => json_encode($soapFault)]);
 				$this->handleSoapFault($soapFault);
 			}
-
 		}
 
 		// return all results to service
 		return $this->createOrderResult;
 	}
 
-    /**
-     * Cancels registered shipment(s)
-     *
-     * @param Request $request
-     * @param array $orderIds
+	/**
+	 * Cancels registered shipment(s)
+	 *
+	 * @param Request $request
+	 * @param array $orderIds
 	 * @internal see GoExpressServiceProvider
-     * @return array
-     */
-    public function deleteShipments(Request $request, $orderIds)
-    {
-        $orderIds = $this->getOrderIds($request, $orderIds);
-        foreach ($orderIds as $orderId)
-        {
-            $shippingInformation = $this->shippingInformationRepositoryContract->getShippingInformationByOrderId($orderId);
+	 * @return array
+	 */
+	public function deleteShipments(Request $request, $orderIds)
+	{
+		$orderIds = $this->getOrderIds($request, $orderIds);
+		foreach ($orderIds as $orderId) {
+			$shippingInformation = $this->shippingInformationRepositoryContract->getShippingInformationByOrderId($orderId);
 
-            if (isset($shippingInformation->additionalData) && is_array($shippingInformation->additionalData))
-            {
-                foreach ($shippingInformation->additionalData as $additionalData)
-                {
-                    try
-                    {
-                        $shipmentNumber = $additionalData['shipmentNumber'];
+			if (isset($shippingInformation->additionalData) && is_array($shippingInformation->additionalData)) {
+				foreach ($shippingInformation->additionalData as $additionalData) {
+					try {
+						$shipmentNumber = $additionalData['shipmentNumber'];
 
-                        // use the shipping service provider's API here
-                        $response = '';
+						// use the shipping service provider's API here
+						$response = '';
 
-                        $this->createOrderResult[$orderId] = $this->buildResultArray(
-                            true,
-                            'shipment deleted',
-                            false,
-                            null);
+						$this->createOrderResult[$orderId] = $this->buildResultArray(
+							true,
+							'shipment deleted',
+							false,
+							null
+						);
+					} catch (\SoapFault $soapFault) {
+						// exception handling
+					}
+				}
 
-                    }
-                    catch(\SoapFault $soapFault)
-                    {
-                        // exception handling
-                    }
+				// resets the shipping information of current order
+				$this->shippingInformationRepositoryContract->resetShippingInformation($orderId);
+			}
+		}
 
-                }
-
-                // resets the shipping information of current order
-                $this->shippingInformationRepositoryContract->resetShippingInformation($orderId);
-            }
-
-
-        }
-
-        // return result array
-        return $this->createOrderResult;
-    }
+		// return result array
+		return $this->createOrderResult;
+	}
 
 
 	/**
-     * Retrieves the label file from PDFs response and saves it in S3 storage
-     *
+	 * Retrieves the label file from PDFs response and saves it in S3 storage
+	 *
 	 * @param string $label
 	 * @param string $key
 	 * @return StorageObject
@@ -404,33 +375,29 @@ class ShippingController extends Controller
 
 		$parcelServicePreset = $parcelServicePresetRepository->getPresetById($parcelServicePresetId);
 
-		if ($parcelServicePreset)
-		{
+		if ($parcelServicePreset) {
 			return $parcelServicePreset;
-		}
-		else
-		{
+		} else {
 			return null;
 		}
 	}
 
-    /**
-     * Saves the shipping information
-     *
-     * @param $orderId
-     * @param $shipmentDate
-     * @param $shipmentItems
-     */
+	/**
+	 * Saves the shipping information
+	 *
+	 * @param $orderId
+	 * @param $shipmentDate
+	 * @param $shipmentItems
+	 */
 	private function saveShippingInformation($orderId, $shipmentDate, $shipmentItems)
 	{
 		$transactionIds = array();
-		foreach ($shipmentItems as $shipmentItem)
-		{
+		foreach ($shipmentItems as $shipmentItem) {
 			$transactionIds[] = $shipmentItem['shipmentNumber'];
 		}
 
-        $shipmentAt = date(\DateTime::W3C, strtotime($shipmentDate));
-        $registrationAt = date(\DateTime::W3C);
+		$shipmentAt = date(\DateTime::W3C, strtotime($shipmentDate));
+		$registrationAt = date(\DateTime::W3C);
 
 		$data = [
 			'orderId' => $orderId,
@@ -446,20 +413,18 @@ class ShippingController extends Controller
 		$this->shippingInformationRepositoryContract->saveShippingInformation($data);
 	}
 
-    /**
-     * Returns all order ids with shipping status 'open'
-     *
-     * @param array $orderIds
-     * @return array
-     */
+	/**
+	 * Returns all order ids with shipping status 'open'
+	 *
+	 * @param array $orderIds
+	 * @return array
+	 */
 	private function getOpenOrderIds($orderIds)
 	{
 		$openOrderIds = array();
-		foreach ($orderIds as $orderId)
-		{
+		foreach ($orderIds as $orderId) {
 			$shippingInformation = $this->shippingInformationRepositoryContract->getShippingInformationByOrderId($orderId);
-			if ($shippingInformation->shippingStatus == null || $shippingInformation->shippingStatus == 'open')
-			{
+			if ($shippingInformation->shippingStatus == null || $shippingInformation->shippingStatus == 'open') {
 				$openOrderIds[] = $orderId;
 			}
 		}
@@ -467,8 +432,8 @@ class ShippingController extends Controller
 	}
 
 	/**
-     * Returns an array in the structure demanded by plenty service
-     *
+	 * Returns an array in the structure demanded by plenty service
+	 *
 	 * @param bool $success
 	 * @param string $statusMessage
 	 * @param bool $newShippingPackage
@@ -486,8 +451,8 @@ class ShippingController extends Controller
 	}
 
 	/**
-     * Returns shipment array
-     *
+	 * Returns shipment array
+	 *
 	 * @param string $labelUrl
 	 * @param string $shipmentNumber
 	 * @return array
@@ -501,8 +466,8 @@ class ShippingController extends Controller
 	}
 
 	/**
-     * Returns package info
-     *
+	 * Returns package info
+	 *
 	 * @param string $packageNumber
 	 * @param string $labelUrl
 	 * @return array
@@ -516,42 +481,36 @@ class ShippingController extends Controller
 	}
 
 	/**
-     * Returns all order ids from request object
-     *
+	 * Returns all order ids from request object
+	 *
 	 * @param Request $request
 	 * @param $orderIds
 	 * @return array
 	 */
 	private function getOrderIds(Request $request, $orderIds)
 	{
-		if (is_numeric($orderIds))
-		{
+		if (is_numeric($orderIds)) {
 			$orderIds = array($orderIds);
-		}
-		else if (!is_array($orderIds))
-		{
+		} else if (!is_array($orderIds)) {
 			$orderIds = $request->get('orderIds');
 		}
 		return $orderIds;
 	}
 
 	/**
-     * Returns the package dimensions by package type
-     *
+	 * Returns the package dimensions by package type
+	 *
 	 * @param $packageType
 	 * @deprecated since v0.1.2
 	 * @return array
 	 */
 	private function getPackageDimensions($packageType): array
 	{
-		if ($packageType->length > 0 && $packageType->width > 0 && $packageType->height > 0)
-		{
+		if ($packageType->length > 0 && $packageType->width > 0 && $packageType->height > 0) {
 			$length = $packageType->length;
 			$width = $packageType->width;
 			$height = $packageType->height;
-		}
-		else
-		{
+		} else {
 			$length = null;
 			$width = null;
 			$height = null;
@@ -559,43 +518,40 @@ class ShippingController extends Controller
 		return array($length, $width, $height);
 	}
 
-    /**
+	/**
 	 * Retrieve labels from S3 storage
 	 * 
-     * @param Request $request
-     * @param array $orderIds
+	 * @param Request $request
+	 * @param array $orderIds
 	 * @internal see GoExpressServiceProvider
-     * @return array
-     */
-    public function getLabels(Request $request, $orderIds)
-    {
-        $orderIds = $this->getOrderIds($request, $orderIds);
-        $labels = array();
-        foreach ($orderIds as $orderId)
-        {
-            $results = $this->orderShippingPackage->listOrderShippingPackages($orderId);
-            /** @var OrderShippingPackage $result */
-            foreach ($results as $result)
-            {
+	 * @return array
+	 */
+	public function getLabels(Request $request, $orderIds)
+	{
+		$orderIds = $this->getOrderIds($request, $orderIds);
+		$labels = array();
+		foreach ($orderIds as $orderId) {
+			$results = $this->orderShippingPackage->listOrderShippingPackages($orderId);
+			/** @var OrderShippingPackage $result */
+			foreach ($results as $result) {
 				if (!strlen($result->labelPath)) {
 					continue;
 				}
 				$labelKey = explode('/', $result->labelPath)[1];
-				$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['labelKey' => $labelKey]);
+				$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['labelKey' => $labelKey]);
 
-                if ($this->storageRepository->doesObjectExist(self::PLUGIN_KEY, $labelKey))
-                {
-                    $storageObject = $this->storageRepository->getObject(self::PLUGIN_KEY, $labelKey);
-                    $labels[] = $storageObject->body;
-                }
-            }
-        }
-        return $labels;
-    }
+				if ($this->storageRepository->doesObjectExist(self::PLUGIN_KEY, $labelKey)) {
+					$storageObject = $this->storageRepository->getObject(self::PLUGIN_KEY, $labelKey);
+					$labels[] = $storageObject->body;
+				}
+			}
+		}
+		return $labels;
+	}
 
 	/**
-     * Handling of response values, fires S3 storage and updates order shipping package
-     *
+	 * Handling of response values, fires S3 storage and updates order shipping package
+	 *
 	 * @param Sendung $response
 	 * @param integer $packageId
 	 * @return array
@@ -606,40 +562,38 @@ class ShippingController extends Controller
 
 		$shipmentData = array_shift($response->Sendung);
 
-		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($shipmentData->PDFs->Routerlabel))
-		{
+		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($shipmentData->PDFs->Routerlabel)) {
 			$shipmentNumber = $shipmentData->Frachtbriefnummer;
-			$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['length' => strlen($shipmentData->PDFs->Routerlabel)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['length' => strlen($shipmentData->PDFs->Routerlabel)]);
 			$storageObject = $this->saveLabelToS3(
-                $shipmentData->PDFs->Routerlabel,
-                $packageId.'.pdf'
+				$shipmentData->PDFs->Routerlabel,
+				$packageId . '.pdf'
 			);
-			$this->getLogger(__METHOD__)->debug('GoExpress::webservice.S3Storage', ['storageObject' => json_encode($storageObject)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['storageObject' => json_encode($storageObject)]);
 
-            $shipmentItems[] = $this->buildShipmentItems(
-                'path_to_pdf_in_S3',
-                $shipmentNumber
+			$shipmentItems[] = $this->buildShipmentItems(
+				'path_to_pdf_in_S3',
+				$shipmentNumber
 			);
 
-            $this->orderShippingPackage->updateOrderShippingPackage(
-                $packageId,
-                $this->buildPackageInfo($shipmentNumber, $storageObject->key)
-            );
+			$this->orderShippingPackage->updateOrderShippingPackage(
+				$packageId,
+				$this->buildPackageInfo($shipmentNumber, $storageObject->key)
+			);
 		}
 		return $shipmentItems;
 	}
 
-    /**
-     * @param $soapFault
-     */
-    private function handleSoapFault($soapFault)
-    {
-        echo $soapFault;
-        echo $this->webservice->getLastRequest();
-        echo $this->webservice->getLastRequestHeaders();
-        echo $this->webservice->getLastResponse();
-        echo $this->webservice->getLastResponseHeaders();
-        exit;
-    }
-
+	/**
+	 * @param $soapFault
+	 */
+	private function handleSoapFault($soapFault)
+	{
+		echo $soapFault;
+		echo $this->webservice->getLastRequest();
+		echo $this->webservice->getLastRequestHeaders();
+		echo $this->webservice->getLastResponse();
+		echo $this->webservice->getLastResponseHeaders();
+		exit;
+	}
 }

@@ -1,93 +1,138 @@
-[
-  {
-    "tab": "General",
-    "key": "mode",
-    "label": "Mode",
-    "type": "dropdown",
-    "possibleValues": {
-      "DEMO": "DEMO",
-      "FINAL": "FINAL"
+{
+  "formatVersion": 1,
+  "menu": {
+    "global": {
+      "label": "Config.Global",
+      "formFields": {
+        "global.mode": {
+          "type": "selectBox",
+          "required": true,
+          "label": "Config.GlobalMode",
+          "options": {
+            "defaultValue": "DEMO",
+            "selectBoxValues": [
+              {
+                "value": "DEMO",
+                "caption": "Config.GlobalModeDemo"
+              },
+              {
+                "value": "FINAL",
+                "caption": "Config.GlobalModeFinal"
+              }
+            ]
+          }
+        },
+        "global.username": {
+          "type": "inputText",
+          "required": true,
+          "label": "Config.GlobalUsername",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "global.password": {
+          "type": "inputText",
+          "required": true,
+          "label": "Config.GlobalPassword",
+          "options": {
+            "isPassword": true,
+            "defaultValue": ""
+          }
+        }
+      }
     },
-    "default": "DEMO"
-  },
-  {
-    "tab": "General",
-    "key": "username",
-    "label": "Username",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "General",
-    "key": "password",
-    "label": "Password",
-    "type": "password",
-    "default": ""
-  },
-  {
-    "tab": "Sender",
-    "key": "senderName",
-    "label": "Name",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Sender",
-    "key": "senderStreet",
-    "label": "Street",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Sender",
-    "key": "senderNo",
-    "label": "No",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Sender",
-    "key": "senderPostalCode",
-    "label": "Postal code",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Sender",
-    "key": "senderTown",
-    "label": "Town",
-    "type": "text",
-    "default": ""
-  },
-  {
-    "tab": "Sender",
-    "key": "senderCountry",
-    "label": "Country",
-    "type": "dropdown",
-    "possibleValues": {
-      "DE": "Germany"
+    "sender": {
+      "label": "Config.Sender",
+      "formFields": {
+        "sender.senderId": {
+          "type": "inputText",
+          "required": true,
+          "label": "Config.SenderAX4ID",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "sender.senderName": {
+          "type": "inputText",
+          "required": true,
+          "label": "Config.SenderName",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "sender.senderStreet": {
+          "type": "inputText",
+          "required": true,
+          "label": "Config.SenderStreet",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "sender.senderNo": {
+          "type": "inputText",
+          "required": true,
+          "label": "Config.SenderNo",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "sender.senderPostalCode": {
+          "type": "inputText",
+          "required": true,
+          "label": "Config.SenderPostalCode",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "sender.senderTown": {
+          "type": "inputText",
+          "required": true,
+          "label": "Config.SenderTown",
+          "options": {
+            "defaultValue": ""
+          }
+        },
+        "sender.senderCountry": {
+          "type": "selectBox",
+          "required": true,
+          "label": "Config.SenderCountry",
+          "options": {
+            "defaultValue": "DE",
+            "selectBoxValues": [
+              {
+                "value": "DE",
+                "caption": "Config.SenderCountryDE"
+              }
+            ]
+          }
+        }
+      }
     },
-    "default": "DE"
-  },
-  {
-    "tab": "Shipping",
-    "key": "pickupTimeFrom",
-    "label": "Pick-up time FROM (format: hh:mm)",
-    "type": "text",
-    "default": "15:30"
-  },
-  {
-    "tab": "Shipping",
-    "key": "pickupTimeTo",
-    "label": "Pick-up time TO (format: hh:mm)",
-    "type": "text",
-    "default": "18:30"
-  },
-  {
-    "tab": "Shipping",
-    "key": "deliveryNotice",
-    "label": "Additional delivery notice",
-    "type": "text",
-    "default": "Achtung Lebensmittel, bei Problemen bitte direkt melden. Sicher Abstellen ok mit Karte in BK."
+    "shipping": {
+      "label": "Config.Shipping",
+      "formFields": {
+        "shipping.pickupTimeFrom": {
+          "type": "inputText",
+          "label": "Config.ShippingPickupTimeFrom",
+          "options": {
+            "defaultValue": "15:00"
+          }
+        },
+        "shipping.pickupTimeTo": {
+          "type": "inputText",
+          "label": "Config.ShippingPickupTimeTo",
+          "options": {
+            "defaultValue": "18:00"
+          }
+        },
+        "shipping.deliveryNotice": {
+          "type": "inputText",
+          "label": "Config.ShippingDeliveryNotice",
+          "options": {
+            "defaultValue": ""
+          }
+        }
+      }
+    }
   }
-]
+}

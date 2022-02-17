@@ -1,6 +1,6 @@
-# Release Notes for Express
+# Release Notes for GO! Express
 
-## v0.1.0 (2021-04-06)
+## v1.0.0 (01.02.2022)
 
-### Added
-- initial version
+### Hinzugefügt
+- Erstveröffentlichung

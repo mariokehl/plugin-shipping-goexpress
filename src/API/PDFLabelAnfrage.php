@@ -2,8 +2,8 @@
 
 namespace GoExpress\API;
 
-class PDFLabelAnfrage {
-
+class PDFLabelAnfrage
+{
     /**
      * @var string $Seitengroesse
      * @access public
@@ -25,5 +25,4 @@ class PDFLabelAnfrage {
         $this->Seitengroesse = Seitengroesse::A6;
         $this->SendungsnummerAX4 = $SendungsnummerAX4;
     }
-
 }

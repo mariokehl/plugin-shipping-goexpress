@@ -2,8 +2,8 @@
 
 namespace GoExpress\API;
 
-class PDFs {
-
+class PDFs
+{
     /**
      * @var binary $Frachtbrief
      * @access public
@@ -21,5 +21,4 @@ class PDFs {
      * @access public
      */
     public $RouterlabelZebra = null;
-
 }

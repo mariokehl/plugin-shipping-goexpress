@@ -4,7 +4,6 @@ namespace GoExpress\API;
 
 class GOWebService extends \SoapClient
 {
-
     /**
      * @var array $classmap The defined classes
      * @access private
@@ -37,19 +36,19 @@ class GOWebService extends \SoapClient
      */
     public function __construct(array $options = array(), $mode = 'DEMO')
     {
-        $wsdl = self::$wsdlFiles[$mode].'?wsdl';
+        $wsdl = self::$wsdlFiles[$mode] . '?wsdl';
 
         foreach (self::$classmap as $key => $value) {
             if (!isset($options['classmap'][$key])) {
                 $options['classmap'][$key] = $value;
             }
         }
-      
+
         if (isset($options['features']) == false) {
             $options['features'] = SOAP_USE_XSI_ARRAY_TYPE;
         }
 
-        $options['features'] = SOAP_SINGLE_ELEMENT_ARRAYS|SOAP_USE_XSI_ARRAY_TYPE;
+        $options['features'] = SOAP_SINGLE_ELEMENT_ARRAYS | SOAP_USE_XSI_ARRAY_TYPE;
         $options['trace'] = 1;
 
         parent::__construct($wsdl, $options);

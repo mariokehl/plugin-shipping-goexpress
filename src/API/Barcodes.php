@@ -2,8 +2,8 @@
 
 namespace GoExpress\API;
 
-class Barcodes {
-
+class Barcodes
+{
     /**
      * @var string[] $BarcodeNr
      * @access public
@@ -18,5 +18,4 @@ class Barcodes {
     {
         $this->BarcodeNr = $BarcodeNr;
     }
-
 }
