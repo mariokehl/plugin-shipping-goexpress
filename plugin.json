@@ -2,7 +2,7 @@
       "name": "GoExpress",
       "namespace": "GoExpress",
       "type": "shipping",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "plentymarkets plugin for shipping provider GO! Express",
       "isClosedSource": true,
       "serviceProvider": "GoExpress\\Providers\\GoExpressServiceProvider",
