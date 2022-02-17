@@ -1,0 +1,19 @@
+{
+    "marketplaceName": {
+        "de": "GO! Express",
+        "en": "GO! Express"
+    },
+    "license": "",
+    "price": 79.99,
+    "shortDescription": {
+        "en": "Express shipping nationally and internationally with GO!",
+        "de": "Expressversand national und international mit GO!"
+    },
+    "categories": [
+        "4082"
+    ],
+    "keywords": [
+        "plugin",
+        "shipping"
+    ]
+}

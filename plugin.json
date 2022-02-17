@@ -1,21 +1,13 @@
 {
       "name": "GoExpress",
-      "marketplaceName": [{"en": "GO! Express", "de": "GO! Express"}],
-      "description": "plentymarkets plugin for shipping provider GO! Express",
-      "shortDescription": {
-            "en": "Express shipping nationally and internationally with GO!",
-            "de": "Expressversand national und international mit GO!"
-      },
       "namespace": "GoExpress",
       "type": "shipping",
+      "version": "1.0.0",
+      "description": "plentymarkets plugin for shipping provider GO! Express",
       "isClosedSource": true,
       "serviceProvider": "GoExpress\\Providers\\GoExpressServiceProvider",
-      "version": "1.0.0",
       "license": "",
       "pluginIcon": "icon_plugin_xs.png",
-      "price": 79.99,
-      "keywords": ["plugin", "shipping"],
-      "categories": ["4082"],
       "author": "Bureau Mario Kehl",
       "authorIcon": "icon_author_xs.png",
       "email": "bureau@mariokehl.com",
