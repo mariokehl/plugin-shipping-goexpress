@@ -1,4 +1,4 @@
-# Release Notes for GO! Express
+# Versionshinweise für GO! Express
 
 ## v1.0.1 (17.02.2022)
 
