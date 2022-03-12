@@ -73,6 +73,7 @@
           "required": true,
           "label": "Config.SenderAX4ID",
           "options": {
+            "tooltip": "Config.SenderAX4IDTooltip",
             "defaultValue": ""
           }
         },
