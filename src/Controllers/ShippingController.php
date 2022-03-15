@@ -17,10 +17,12 @@ use Plenty\Plugin\ConfigRepository;
 use GoExpress\API\GOWebService;
 use GoExpress\API\Abholadresse;
 use GoExpress\API\Abholdatum;
+use GoExpress\API\Ansprechpartner;
 use GoExpress\API\Empfaenger;
 use GoExpress\API\SendungsDaten;
 use GoExpress\API\SendungsPosition;
 use GoExpress\API\PDFLabelAnfrage;
+use GoExpress\API\Telefon;
 use Plenty\Plugin\Log\Loggable;
 
 /**
@@ -175,22 +177,23 @@ class ShippingController extends Controller
 
 			// gathering required data for registering the shipment
 
-			/** @var Address $address */
-			$address = $order->deliveryAddress;
+			/** @var Address $deliveryAddress */
+			$deliveryAddress = $order->deliveryAddress;
 
-			$receiverName1 = implode(' ', [$address->firstName, $address->lastName]);
+			$receiverName1 = implode(' ', [$deliveryAddress->firstName, $deliveryAddress->lastName]);
 			$receiverName2 = null;
-			if (strlen($address->companyName)) {
+			if (strlen($deliveryAddress->companyName)) {
 				$receiverName2 = $receiverName1;
-				$receiverName1 = $address->companyName;
+				$receiverName1 = $deliveryAddress->companyName;
 			}
-			$receiverStreet = $address->street;
-			$receiverNo = $address->houseNumber;
-			$receiverCountry = $address->country->isoCode2;
-			$receiverPostalCode = $address->postalCode;
-			$receiverTown = $address->town;
-			$receiverEmail = $address->email;
+			$receiverStreet = $deliveryAddress->street;
+			$receiverNo = $deliveryAddress->houseNumber;
+			$receiverCountry = $deliveryAddress->country->isoCode2;
+			$receiverPostalCode = $deliveryAddress->postalCode;
+			$receiverTown = $deliveryAddress->town;
+			$receiverEmail = $deliveryAddress->email;
 
+			/** @var Empfaenger $receiverAddress */
 			$receiverAddress = pluginApp(Empfaenger::class, [
 				$receiverName1,
 				$receiverStreet,
@@ -201,6 +204,26 @@ class ShippingController extends Controller
 				$receiverEmail,
 				$receiverName2
 			]);
+
+			// fix phone number missing in delivery address
+			if (strlen($deliveryAddress->phone)) {
+				$phoneNumber = $deliveryAddress->phone;
+			} else {
+				/** @var Address $billingAddress */
+				$billingAddress = $order->billingAddress;
+				$phoneNumber = $billingAddress->phone;
+			}
+
+			// set phone number if any exists 
+			if (strlen($phoneNumber)) {
+				/** @var Telefon $receiverPhone */
+				$receiverPhone = pluginApp(Telefon::class);
+				$receiverPhone->parseString($phoneNumber, $receiverCountry);
+
+				/** @var Ansprechpartner $receiverContact */
+				$receiverContact = pluginApp(Ansprechpartner::class, [$receiverPhone]);
+				$receiverAddress->setAnsprechpartner($receiverContact);
+			}
 
 			// gets order shipping packages from current order
 			$packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
