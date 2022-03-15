@@ -5,6 +5,7 @@ namespace GoExpress\Controllers;
 use Plenty\Modules\Account\Address\Models\Address;
 use Plenty\Modules\Cloud\Storage\Models\StorageObject;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
+use Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract;
 use Plenty\Modules\Order\Shipping\Contracts\ParcelServicePresetRepositoryContract;
 use Plenty\Modules\Order\Shipping\Information\Contracts\ShippingInformationRepositoryContract;
 use Plenty\Modules\Order\Shipping\Package\Contracts\OrderShippingPackageRepositoryContract;
@@ -36,6 +37,11 @@ class ShippingController extends Controller
 	 * @var OrderRepositoryContract $orderRepository
 	 */
 	private $orderRepository;
+
+	/**
+	 * @var OrderPropertyRepositoryContract $orderPropertyRepository
+	 */
+	private $orderPropertyRepository;
 
 	/**
 	 * @var OrderShippingPackageRepositoryContract $orderShippingPackage
@@ -87,6 +93,7 @@ class ShippingController extends Controller
 	 * ShipmentController constructor.
 	 *
 	 * @param OrderRepositoryContract $orderRepository
+	 * @param OrderPropertyRepositoryContract $orderPropertyRepository
 	 * @param OrderShippingPackageRepositoryContract $orderShippingPackage
 	 * @param StorageRepositoryContract $storageRepository
 	 * @param ShippingInformationRepositoryContract $shippingInformationRepositoryContract
@@ -95,6 +102,7 @@ class ShippingController extends Controller
 	 */
 	public function __construct(
 		OrderRepositoryContract $orderRepository,
+		OrderPropertyRepositoryContract $orderPropertyRepository,
 		OrderShippingPackageRepositoryContract $orderShippingPackage,
 		StorageRepositoryContract $storageRepository,
 		ShippingInformationRepositoryContract $shippingInformationRepositoryContract,
@@ -102,6 +110,7 @@ class ShippingController extends Controller
 		ConfigRepository $config
 	) {
 		$this->orderRepository = $orderRepository;
+		$this->orderPropertyRepository = $orderPropertyRepository;
 		$this->orderShippingPackage = $orderShippingPackage;
 		$this->storageRepository = $storageRepository;
 
@@ -254,7 +263,15 @@ class ShippingController extends Controller
 			]);
 
 			// customer reference
-			$reference = substr('Auftragsnummer: ' . $orderId, 0, 35);
+			$orderPropertyCollection = $this->orderPropertyRepository->findByOrderId($orderId, 7);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.OrderProperties', [
+				'EXTERNAL_ORDER_ID' => json_encode($orderPropertyCollection)
+			]);
+			if ($externalOrderId = $orderPropertyCollection->first()) {
+				$reference = $externalOrderId->value;
+			} else {
+				$reference = $orderId;
+			}
 
 			// overwrite default delivery notice from comments (must contain @goexpress)
 			$deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');

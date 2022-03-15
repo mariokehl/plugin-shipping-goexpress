@@ -103,7 +103,7 @@ class SendungsDaten
     ) {
         $this->Versender = $Versender;
         $this->Status = Status::freigegeben;
-        $this->Kundenreferenz = $Kundenreferenz;
+        $this->Kundenreferenz = substr($Kundenreferenz, 0, 40);
         $this->Abholadresse = $Abholadresse;
         $this->Empfaenger = $Empfaenger;
         if (trim($Empfaenger->Land) === 'DE') {
@@ -115,7 +115,7 @@ class SendungsDaten
         $this->unfrei = KzUnfrei::frei;
         $this->Selbstanlieferung = KzSelbstanlieferung::Abholung;
         $this->Selbstabholung = KzSelbstabholung::Zustellung;
-        $this->Zustellhinweise = $Zustellhinweise;
+        $this->Zustellhinweise = substr($Zustellhinweise, 0, 128);
         $this->SendungsPosition = $SendungsPosition;
     }
 
