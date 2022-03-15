@@ -36,7 +36,11 @@ class GOWebService extends \SoapClient
      */
     public function __construct(array $options = array(), $mode = 'DEMO')
     {
-        $wsdl = self::$wsdlFiles[$mode] . '?wsdl';
+        if (isset($options['wsdl']) === false) {
+            $wsdl = self::$wsdlFiles[$mode] . '?wsdl';
+        } else {
+            $wsdl = $options['wsdl'][$mode] . '?wsdl';
+        }
 
         foreach (self::$classmap as $key => $value) {
             if (!isset($options['classmap'][$key])) {
@@ -44,7 +48,7 @@ class GOWebService extends \SoapClient
             }
         }
 
-        if (isset($options['features']) == false) {
+        if (isset($options['features']) === false) {
             $options['features'] = SOAP_USE_XSI_ARRAY_TYPE;
         }
 
