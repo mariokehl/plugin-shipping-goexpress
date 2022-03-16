@@ -150,6 +150,13 @@
             "defaultValue": "18:00"
           }
         },
+        "shipping.pickupNotice": {
+          "type": "inputText",
+          "label": "Config.ShippingPickupNotice",
+          "options": {
+            "defaultValue": ""
+          }
+        },
         "shipping.deliveryNotice": {
           "type": "inputText",
           "label": "Config.ShippingDeliveryNotice",

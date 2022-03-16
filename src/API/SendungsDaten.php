@@ -71,6 +71,12 @@ class SendungsDaten
     public $Selbstabholung = null;
 
     /**
+     * @var string $Abholhinweise
+     * @access public
+     */
+    public $Abholhinweise = null;
+
+    /**
      * @var string $Zustellhinweise
      * @access public
      */
@@ -89,6 +95,7 @@ class SendungsDaten
      * @param Abholdatum $Abholdatum
      * @param SendungsPosition $SendungsPosition
      * @param string $Kundenreferenz
+     * @param string $Abholhinweise
      * @param string $Zustellhinweise
      * @access public
      */
@@ -99,6 +106,7 @@ class SendungsDaten
         $Abholdatum,
         $SendungsPosition,
         $Kundenreferenz,
+        $Abholhinweise = '',
         $Zustellhinweise = ''
     ) {
         $this->Versender = $Versender;
@@ -115,6 +123,7 @@ class SendungsDaten
         $this->unfrei = KzUnfrei::frei;
         $this->Selbstanlieferung = KzSelbstanlieferung::Abholung;
         $this->Selbstabholung = KzSelbstabholung::Zustellung;
+        $this->Abholhinweise = substr($Abholhinweise, 0, 128);
         $this->Zustellhinweise = substr($Zustellhinweise, 0, 128);
         $this->SendungsPosition = $SendungsPosition;
     }
