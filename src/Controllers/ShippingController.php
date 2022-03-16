@@ -2,28 +2,21 @@
 
 namespace GoExpress\Controllers;
 
-use Plenty\Modules\Account\Address\Models\Address;
 use Plenty\Modules\Cloud\Storage\Models\StorageObject;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
-use Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract;
 use Plenty\Modules\Order\Shipping\Contracts\ParcelServicePresetRepositoryContract;
 use Plenty\Modules\Order\Shipping\Information\Contracts\ShippingInformationRepositoryContract;
 use Plenty\Modules\Order\Shipping\Package\Contracts\OrderShippingPackageRepositoryContract;
-use Plenty\Modules\Order\Shipping\PackageType\Contracts\ShippingPackageTypeRepositoryContract;
 use Plenty\Modules\Order\Shipping\ParcelService\Models\ParcelServicePreset;
 use Plenty\Modules\Plugin\Storage\Contracts\StorageRepositoryContract;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
-use Plenty\Plugin\ConfigRepository;
 use GoExpress\API\GOWebService;
 use GoExpress\API\Abholadresse;
 use GoExpress\API\Abholdatum;
-use GoExpress\API\Ansprechpartner;
-use GoExpress\API\Empfaenger;
 use GoExpress\API\SendungsDaten;
-use GoExpress\API\SendungsPosition;
 use GoExpress\API\PDFLabelAnfrage;
-use GoExpress\API\Telefon;
+use GoExpress\Factory\GoExpressFactory;
 use Plenty\Plugin\Log\Loggable;
 
 /**
@@ -39,17 +32,12 @@ class ShippingController extends Controller
 	private $orderRepository;
 
 	/**
-	 * @var OrderPropertyRepositoryContract $orderPropertyRepository
-	 */
-	private $orderPropertyRepository;
-
-	/**
 	 * @var OrderShippingPackageRepositoryContract $orderShippingPackage
 	 */
 	private $orderShippingPackage;
 
 	/**
-	 * @var ShippingInformationRepositoryContract
+	 * @var ShippingInformationRepositoryContract $shippingInformationRepositoryContract
 	 */
 	private $shippingInformationRepositoryContract;
 
@@ -59,30 +47,19 @@ class ShippingController extends Controller
 	private $storageRepository;
 
 	/**
-	 * @var ShippingPackageTypeRepositoryContract
-	 */
-	private $shippingPackageTypeRepositoryContract;
-
-	/**
 	 * @var array
 	 */
 	private $createOrderResult = [];
-
+	
 	/**
-	 * @var ConfigRepository
+	 * @var GoExpressFactory $factory
 	 */
-	private $config;
+	private $factory;
 
 	/**
 	 * @var GOWebService $webservice
 	 */
 	private $webservice;
-
-	/**
-	 * Shipment constants
-	 */
-	const DEFAULT_PACKAGE_NAME = 'Wareninhalt';
-	const MINIMUM_FALLBACK_WEIGHT = 0.2;
 
 	/**
 	 * Plugin key
@@ -93,49 +70,28 @@ class ShippingController extends Controller
 	 * ShipmentController constructor.
 	 *
 	 * @param OrderRepositoryContract $orderRepository
-	 * @param OrderPropertyRepositoryContract $orderPropertyRepository
 	 * @param OrderShippingPackageRepositoryContract $orderShippingPackage
 	 * @param StorageRepositoryContract $storageRepository
 	 * @param ShippingInformationRepositoryContract $shippingInformationRepositoryContract
-	 * @param ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract
-	 * @param ConfigRepository $config
+	 * @param GoExpressFactory $factory
 	 */
 	public function __construct(
 		OrderRepositoryContract $orderRepository,
-		OrderPropertyRepositoryContract $orderPropertyRepository,
 		OrderShippingPackageRepositoryContract $orderShippingPackage,
 		StorageRepositoryContract $storageRepository,
 		ShippingInformationRepositoryContract $shippingInformationRepositoryContract,
-		ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract,
-		ConfigRepository $config
+		GoExpressFactory $factory
 	) {
 		$this->orderRepository = $orderRepository;
-		$this->orderPropertyRepository = $orderPropertyRepository;
 		$this->orderShippingPackage = $orderShippingPackage;
 		$this->storageRepository = $storageRepository;
 
 		$this->shippingInformationRepositoryContract = $shippingInformationRepositoryContract;
-		$this->shippingPackageTypeRepositoryContract = $shippingPackageTypeRepositoryContract;
 
-		$this->config = $config;
+		$this->factory = $factory;
 
-		// Get credentials by UI config
-		$partnerCredentialsUser = $this->config->get('GoExpress.global.username');
-		$partnerCredentialsPass = $this->config->get('GoExpress.global.password');
-
-		$this->webservice = pluginApp(GOWebService::class, [
-			[
-				'wsdl' => [
-					'DEMO' => $this->config->get('GoExpress.global.container.webserviceDemoUri'),
-					'FINAL' =>  $this->config->get('GoExpress.global.container.webserviceFinalUri')
-				],
-				'login' => $partnerCredentialsUser,
-				'password' => $partnerCredentialsPass
-			],
-			$this->config->get('GoExpress.global.mode')
-		]);
+		$this->webservice = $this->factory->getWebserviceInstance();
 	}
-
 
 	/**
 	 * Registers shipment(s)
@@ -151,143 +107,33 @@ class ShippingController extends Controller
 		$orderIds = $this->getOpenOrderIds($orderIds);
 		$shipmentDate = date('Y-m-d');
 
-		// reads sender data from plugin config
-		$senderName = $this->config->get('GoExpress.sender.senderName', '');
-		$senderStreet = $this->config->get('GoExpress.sender.senderStreet', '');
-		$senderNo = $this->config->get('GoExpress.sender.senderNo', '');
-		$senderCountry = $this->config->get('GoExpress.sender.senderCountry', '');
-		$senderPostalCode = $this->config->get('GoExpress.sender.senderPostalCode', '');
-		$senderTown = $this->config->get('GoExpress.sender.senderTown', '');
+		/** @var Abholadresse $senderAddress */
+		$senderAddress = $this->factory->getAbholadresse();
 
-		$senderAddress = pluginApp(Abholadresse::class, [
-			$senderName,
-			$senderStreet,
-			$senderNo,
-			$senderCountry,
-			$senderPostalCode,
-			$senderTown
-		]);
-
-		/**
-		 * WARNING: shipments can no longer be registered for the current day after 3 p.m.
-		 * If it is done anyway, it will result in a webservice error. Maybe this should be catched and the date adjusted accordingly!
-		 * 
-		 * @var Abholdatum $pickupDate
-		 */
-		$pickupDate = pluginApp(Abholdatum::class, [
-			date('d.m.Y'),
-			$this->config->get('GoExpress.shipping.pickupTimeFrom', '15:30'),
-			$this->config->get('GoExpress.shipping.pickupTimeTo', '18:30')
-		]);
+		/** @var Abholdatum $pickupDate */
+		$pickupDate = $this->factory->getAbholdatum();
 
 		foreach ($orderIds as $orderId) {
 			$order = $this->orderRepository->findOrderById($orderId);
 			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => json_encode($order)]);
 
 			// gathering required data for registering the shipment
-
-			/** @var Address $deliveryAddress */
-			$deliveryAddress = $order->deliveryAddress;
-
-			$receiverName1 = implode(' ', [$deliveryAddress->firstName, $deliveryAddress->lastName]);
-			$receiverName2 = null;
-			if (strlen($deliveryAddress->companyName)) {
-				$receiverName2 = $receiverName1;
-				$receiverName1 = $deliveryAddress->companyName;
-			}
-			$receiverStreet = $deliveryAddress->street;
-			$receiverNo = $deliveryAddress->houseNumber;
-			$receiverCountry = $deliveryAddress->country->isoCode2;
-			$receiverPostalCode = $deliveryAddress->postalCode;
-			$receiverTown = $deliveryAddress->town;
-			$receiverEmail = $deliveryAddress->email;
-
-			/** @var Empfaenger $receiverAddress */
-			$receiverAddress = pluginApp(Empfaenger::class, [
-				$receiverName1,
-				$receiverStreet,
-				$receiverNo,
-				$receiverCountry,
-				$receiverPostalCode,
-				$receiverTown,
-				$receiverEmail,
-				$receiverName2
-			]);
-
-			// fix phone number missing in delivery address
-			if (strlen($deliveryAddress->phone)) {
-				$phoneNumber = $deliveryAddress->phone;
-			} else {
-				/** @var Address $billingAddress */
-				$billingAddress = $order->billingAddress;
-				$phoneNumber = $billingAddress->phone;
-			}
-
-			// set phone number if any exists 
-			if (strlen($phoneNumber)) {
-				/** @var Telefon $receiverPhone */
-				$receiverPhone = pluginApp(Telefon::class);
-				$receiverPhone->parseString($phoneNumber, $receiverCountry);
-
-				/** @var Ansprechpartner $receiverContact */
-				$receiverContact = pluginApp(Ansprechpartner::class, [$receiverPhone]);
-				$receiverAddress->setAnsprechpartner($receiverContact);
-			}
+			$this->factory->setAbholadresse($senderAddress);
+			$this->factory->setAbholdatum($pickupDate);
+			$this->factory->setEmpfaenger($order->deliveryAddress, $order->billingAddress);
 
 			// gets order shipping packages from current order
-			$packages = $this->orderShippingPackage->listOrderShippingPackages($order->id);
-
-			// package sums
-			$firstPackageId = null;
-			$firstPackageName = self::DEFAULT_PACKAGE_NAME;
-			$packageWeights = 0.0; // kilograms
-
-			// iterating through packages
-			$packageCount = 0;
-			foreach ($packages as $key => $package) {
-				if ($packageCount === 0) {
-					$firstPackageId = $package->id;
-					$packageType = $this->shippingPackageTypeRepositoryContract->findShippingPackageTypeById($package->packageId);
-					$firstPackageName = $packageType->name;
-				}
-				if ($package->weight) {
-					$packageWeights += $package->weight / 1000;
-				}
-				$packageCount++;
-			}
-
-			$parcelData = pluginApp(SendungsPosition::class, [
-				$packageCount,
-				$packageWeights ? $packageWeights : self::MINIMUM_FALLBACK_WEIGHT,
-				$firstPackageName
-			]);
+			$packages = $this->orderShippingPackage->listOrderShippingPackages($orderId);
+			$this->factory->setSendungsPosition($packages);
 
 			// customer reference
-			$orderPropertyCollection = $this->orderPropertyRepository->findByOrderId($orderId, 7);
-			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.OrderProperties', [
-				'EXTERNAL_ORDER_ID' => json_encode($orderPropertyCollection)
-			]);
-			if ($externalOrderId = $orderPropertyCollection->first()) {
-				$reference = $externalOrderId->value;
-			} else {
-				$reference = $orderId;
-			}
+			$this->factory->setKundenreferenz($orderId);
 
-			// overwrite default delivery notice from comments (must contain @goexpress)
-			$deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
-			/** @var Comment $comment */
-			foreach ($order->comments as $comment) {
-				if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
-					continue;
-				} else {
-					$commentText = strip_tags($comment->text);
-					$commentText = str_replace('@goexpress', '', $commentText);
-					$commentText = trim($commentText);
-					$commentText = substr($commentText, 0, 128);
-					$deliveryNotice = $commentText;
-					break;
-				}
-			}
+			// pickup notice
+			$this->factory->setAbholhinweise();
+
+			// delivery notice
+			$this->factory->setZustellhinweise($order->comments);
 
 			try {
 				/**
@@ -295,16 +141,7 @@ class ShippingController extends Controller
 				 * 
 				 * @var SendungsDaten $shipmentData
 				 */
-				$shipmentData = pluginApp(SendungsDaten::class, [
-					intval($this->config->get('GoExpress.sender.senderId', '')),
-					$receiverAddress,
-					$senderAddress,
-					$pickupDate,
-					$parcelData,
-					$reference,
-					$deliveryNotice
-				]);
-
+				$shipmentData = $this->factory->getSendungsDaten();
 				$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.SendungsDaten', ['shipmentData' => json_encode($shipmentData)]);
 				$shipment = $this->webservice->GOWebService_SendungsErstellung($shipmentData);
 				$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.SendungsErstellung', ['shipment' => json_encode($shipment)]);
@@ -321,7 +158,7 @@ class ShippingController extends Controller
 					$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.PDFs', ['labels' => count($labels->Sendung)]);
 
 					// handles the response
-					$shipmentItems = $this->handleAfterRegisterShipment($labels, $firstPackageId);
+					$shipmentItems = $this->handleAfterRegisterShipment($labels, $packages[0]->id);
 
 					// adds result
 					$this->createOrderResult[$orderId] = $this->buildResultArray(
