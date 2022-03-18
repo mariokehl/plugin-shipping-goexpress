@@ -89,6 +89,12 @@ class SendungsDaten
     public $SendungsPosition = null;
 
     /**
+     * @var Zustelldatum|null $Zustelldatum
+     * @access public
+     */
+    public $Zustelldatum = null;
+
+    /**
      * @param integer $Versender
      * @param Empfaenger $Empfaenger
      * @param Abholadresse $Abholadresse
@@ -97,6 +103,7 @@ class SendungsDaten
      * @param string $Kundenreferenz
      * @param string $Abholhinweise
      * @param string $Zustellhinweise
+     * @param Zustelldatum|null $Zustelldatum
      * @access public
      */
     public function __construct(
@@ -107,7 +114,8 @@ class SendungsDaten
         $SendungsPosition,
         $Kundenreferenz,
         $Abholhinweise = '',
-        $Zustellhinweise = ''
+        $Zustellhinweise = '',
+        $Zustelldatum = null
     ) {
         $this->Versender = $Versender;
         $this->Status = Status::freigegeben;
@@ -126,6 +134,7 @@ class SendungsDaten
         $this->Abholhinweise = substr($Abholhinweise, 0, 128);
         $this->Zustellhinweise = substr($Zustellhinweise, 0, 128);
         $this->SendungsPosition = $SendungsPosition;
+        $this->Zustelldatum = $Zustelldatum;
     }
 
     /**

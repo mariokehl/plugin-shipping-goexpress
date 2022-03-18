@@ -163,6 +163,10 @@
           "options": {
             "defaultValue": ""
           }
+        },
+        "shipping.enableSaturdayDelivery": {
+          "type": "checkBox",
+          "label": "Config.ShippingEnableSaturdayDelivery"
         }
       }
     }

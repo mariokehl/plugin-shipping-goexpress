@@ -4,7 +4,6 @@ namespace GoExpress\API;
 
 class Abholadresse
 {
-
     /**
      * @var string $Firmenname1
      * @access public

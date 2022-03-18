@@ -10,6 +10,7 @@ use GoExpress\API\Telefon;
 use GoExpress\API\Ansprechpartner;
 use GoExpress\API\SendungsPosition;
 use GoExpress\API\SendungsDaten;
+use GoExpress\API\Zustelldatum;
 use Plenty\Modules\Account\Address\Models\Address;
 use Plenty\Modules\Comment\Models\Comment;
 use Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract;
@@ -32,14 +33,19 @@ class GoExpressFactory
     const MINIMUM_FALLBACK_WEIGHT = 0.2;
 
     /**
+     * Webservice constants
+     */
+    const WEBSERVICE_DATE_FORMAT = 'd.m.Y';
+
+    /**
      * @var ConfigRepository $config
      */
     private $config;
 
-	/**
-	 * @var OrderPropertyRepositoryContract $orderPropertyRepositoryContract
-	 */
-	private $orderPropertyRepositoryContract;
+    /**
+     * @var OrderPropertyRepositoryContract $orderPropertyRepositoryContract
+     */
+    private $orderPropertyRepositoryContract;
 
     /**
      * @var ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract
@@ -50,7 +56,7 @@ class GoExpressFactory
      * GoExpressFactory constructor.
      *
      * @param OrderPropertyRepositoryContract $orderPropertyRepositoryContract
-	 * @param ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract
+     * @param ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract
      * @param ConfigRepository $config
      */
     public function __construct(
@@ -99,6 +105,11 @@ class GoExpressFactory
     private $Zustellhinweise;
 
     /**
+     * @var Zustelldatum|null $Zustelldatum
+     */
+    private $Zustelldatum;
+
+    /**
      * Returns new instance of GO! web service
      *
      * @return GOWebService
@@ -126,9 +137,22 @@ class GoExpressFactory
     }
 
     /**
+     * Initialize the factory
+     *
+     * @return void
+     */
+    public function init()
+    {
+        $this->Abholadresse = $this->getAbholadresse();
+        $this->Abholdatum = $this->getAbholdatum();
+        $this->Abholhinweise = $this->getAbholhinweise();
+        $this->Zustelldatum = $this->getZustelldatum();
+    }
+
+    /**
      * @return Abholadresse
      */
-    public function getAbholadresse()
+    private function getAbholadresse()
     {
         $senderName = $this->config->get('GoExpress.sender.senderName', '');
         $senderStreet = $this->config->get('GoExpress.sender.senderStreet', '');
@@ -151,25 +175,16 @@ class GoExpressFactory
     }
 
     /**
-     * @param Abholadresse $Abholadresse
-     * @return void
-     */
-    public function setAbholadresse($Abholadresse)
-    {
-        $this->Abholadresse = $Abholadresse;
-    }
-
-    /**
      * WARNING: shipments can no longer be registered for the current day after 3 p.m.
      * If it is done anyway, it will result in a webservice error. Maybe this should be catched and the date adjusted accordingly!
      * 
      * @return Abholdatum
      */
-    public function getAbholdatum()
+    private function getAbholdatum()
     {
         /** @var Abholdatum $instance */
         $instance = pluginApp(Abholdatum::class, [
-            date('d.m.Y'),
+            date(self::WEBSERVICE_DATE_FORMAT),
             $this->config->get('GoExpress.shipping.pickupTimeFrom', '15:30'),
             $this->config->get('GoExpress.shipping.pickupTimeTo', '18:30')
         ]);
@@ -178,12 +193,11 @@ class GoExpressFactory
     }
 
     /**
-     * @param Abholdatum $Abholdatum
-     * @return void
+     * @return string
      */
-    public function setAbholdatum($Abholdatum)
+    private function getAbholhinweise()
     {
-        $this->Abholdatum = $Abholdatum;
+        return $this->config->get('GoExpress.shipping.pickupNotice', '');
     }
 
     /**
@@ -288,14 +302,6 @@ class GoExpressFactory
     }
 
     /**
-     * @return void
-     */
-    public function setAbholhinweise()
-    {
-        $this->Abholhinweise = $this->config->get('GoExpress.shipping.pickupNotice', '');
-    }
-
-    /**
      * Overwrite default delivery notice if necessary (comment must contain @goexpress)
      * 
      * @param array $comments
@@ -322,6 +328,28 @@ class GoExpressFactory
     }
 
     /**
+     * @return mixed
+     */
+    public function getZustelldatum()
+    {
+        $enableSaturdayDelivery = $this->config->get('GoExpress.shipping.enableSaturdayDelivery');
+        if ($enableSaturdayDelivery === 'false') return;
+
+        // gets day of week as number (0=sunday, 1=monday..., 6=saturday)
+        $isFriday = (date('w') == 5);
+        $nextDay = date(self::WEBSERVICE_DATE_FORMAT, strtotime('tomorrow'));
+
+        $this->getLogger(__METHOD__)->debug('GoExpress::Webservice.Zustelldatum', ['isFriday' => $isFriday, 'nextDay' => $nextDay]);
+
+        if ($isFriday) {
+            /** @var Zustelldatum $instance */
+            $instance = pluginApp(Zustelldatum::class, [$nextDay]);
+        }
+
+        return isset($instance) ? $instance : null;
+    }
+
+    /**
      * @return SendungsDaten
      */
     public function getSendungsDaten()
@@ -335,7 +363,8 @@ class GoExpressFactory
             $this->SendungsPosition,
             $this->Kundenreferenz,
             $this->Abholhinweise,
-            $this->Zustellhinweise
+            $this->Zustellhinweise,
+            $this->Zustelldatum
         ]);
 
         return $instance;

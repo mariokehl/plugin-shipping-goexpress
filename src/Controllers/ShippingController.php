@@ -107,19 +107,14 @@ class ShippingController extends Controller
 		$orderIds = $this->getOpenOrderIds($orderIds);
 		$shipmentDate = date('Y-m-d');
 
-		/** @var Abholadresse $senderAddress */
-		$senderAddress = $this->factory->getAbholadresse();
-
-		/** @var Abholdatum $pickupDate */
-		$pickupDate = $this->factory->getAbholdatum();
+		// Initialize the factory
+		$this->factory->init();
 
 		foreach ($orderIds as $orderId) {
 			$order = $this->orderRepository->findOrderById($orderId);
 			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => json_encode($order)]);
 
 			// gathering required data for registering the shipment
-			$this->factory->setAbholadresse($senderAddress);
-			$this->factory->setAbholdatum($pickupDate);
 			$this->factory->setEmpfaenger($order->deliveryAddress, $order->billingAddress);
 
 			// gets order shipping packages from current order
@@ -128,9 +123,6 @@ class ShippingController extends Controller
 
 			// customer reference
 			$this->factory->setKundenreferenz($orderId);
-
-			// pickup notice
-			$this->factory->setAbholhinweise();
 
 			// delivery notice
 			$this->factory->setZustellhinweise($order->comments);

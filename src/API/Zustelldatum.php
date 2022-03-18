@@ -2,7 +2,7 @@
 
 namespace GoExpress\API;
 
-class Abholdatum
+class Zustelldatum
 {
     /**
      * @var string $Datum
