@@ -12,8 +12,6 @@ use Plenty\Modules\Plugin\Storage\Contracts\StorageRepositoryContract;
 use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
 use GoExpress\API\GOWebService;
-use GoExpress\API\Abholadresse;
-use GoExpress\API\Abholdatum;
 use GoExpress\API\SendungsDaten;
 use GoExpress\API\PDFLabelAnfrage;
 use GoExpress\Factory\GoExpressFactory;
