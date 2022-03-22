@@ -60,12 +60,6 @@ You can configure this in your shipping profile using the option **[Transfer ema
     If you have activated the <strong>Agreement upon data transfer</strong> checkbox: If the person does not agree to the transfer of data and you have not entered an alternative email address in the shipping profile, an error message will be displayed and the order cannot be sent to GO! be registered.
 </div>
 
----
-
-<div class="alert alert-danger" role="alert">
-    Due to format restrictions within the interface (separate fields for country code, area code, number), the phone number is currently not transmitted under any circumstances.
-</div>
-
 ## Credits
 
 This plugin was kindly funded by [beefgourmet.de](https://www.beefgourmet.de/).

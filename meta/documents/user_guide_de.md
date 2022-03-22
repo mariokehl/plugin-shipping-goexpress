@@ -60,12 +60,6 @@ Du kannst in deinem Versandprofil über die Option **[E-Mail und Telefon übertr
     Falls du die Checkbox <strong>Einwilligung zur Datenübermittlung</strong> aktiviert hast: Wenn die Person der Übertragung der Daten nicht zustimmt und du keine alternative E-Mail-Adresse im Versandprofil eingegeben hast, wird eine Fehlermeldung angezeigt und der Auftrag kann nicht bei GO! angemeldet werden.
 </div>
 
----
-
-<div class="alert alert-danger" role="alert">
-    Aufgrund von Formateinschränkungen innerhalb der Schnittstelle (separate Felder für Ländercode, Ortsvorwahl, Nummer) wird die Telefonnummer derzeit in keinem Fall übermittelt.
-</div>
-
 ## Credits
 
 Dieses Plugin wurde mit freundlicher Unterstützung von [beefgourmet.de](https://www.beefgourmet.de/) finanziert.
