@@ -39,7 +39,7 @@ Sobald du von GO! die Freigabe für den Produktivbetrieb erhalten hast, musst du
 
 ### Versendereinstellungen
 
-Hinterlege im Bereich **Sender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Shipping** deine Abholzeit und einen optionalen Zustellhinweis konfigurieren.
+Hinterlege im Bereich **Versender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Versand** deine Abholzeit und einen optionalen Zustellhinweis konfigurieren.
 
 ## GO! Express als Versandoption
 
