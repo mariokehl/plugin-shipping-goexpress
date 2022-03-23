@@ -39,7 +39,11 @@ Sobald du von GO! die Freigabe für den Produktivbetrieb erhalten hast, musst du
 
 ### Versendereinstellungen
 
-Hinterlege im Bereich **Versender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Versand** deine Abholzeit und einen optionalen Zustellhinweis konfigurieren.
+Hinterlege im Bereich **Versender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Versand** deine Abholzeit und einen optionalen Abhol-/Zustellhinweis konfigurieren.
+
+<div class="alert alert-warning" role="alert">
+    Das Abholzeitfenster muss mindestens 120 Minuten betragen und Sendungen können nur bis spätestens 85 Minuten vorher angemeldet werden.
+</div>
 
 ## GO! Express als Versandoption
 

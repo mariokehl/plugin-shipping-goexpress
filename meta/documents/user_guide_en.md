@@ -39,7 +39,11 @@ As soon as you are from GO! have received the release for productive operation, 
 
 ### Shipper Settings
 
-Enter your address data according to registration in the **Sender** area. You can also configure your pick-up time and an optional delivery note under **Shipping**.
+Enter your address data according to registration in the **Sender** area. You can also configure your pick-up time and an optional pick-up and or delivery notice under **Shipping**.
+
+<div class="alert alert-warning" role="alert">
+    The pick-up time window must be at least 120 minutes and shipments can only be registered at least 85 minutes in advance.
+</div>
 
 ## GO! Express as a shipping option
 
