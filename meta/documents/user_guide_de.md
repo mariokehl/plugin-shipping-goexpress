@@ -39,7 +39,7 @@ Sobald du von GO! die Freigabe für den Produktivbetrieb erhalten hast, musst du
 
 ### Versendereinstellungen
 
-Hinterlege im Bereich **Sender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Shipping** deine Abholzeit und einen optionalen Zustellhinweis konfigurieren.
+Hinterlege im Bereich **Versender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Versand** deine Abholzeit und einen optionalen Zustellhinweis konfigurieren.
 
 ## GO! Express als Versandoption
 
@@ -48,7 +48,7 @@ Wenn das Plugin erfolgreich installiert und die Tests erfolgreich verlaufen sind
 1. Aktiviere deine **[Lieferländer](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#100)**
 2. Erstelle deine (Versand-)**[Regionen](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#400)**
 3. Erstelle deinen **[Versanddienstleister](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#800)** _**GO! Express**_
-  * Wähle _**GO! Express**_ in der Spalte _Versanddienstleister_ aus
+  * Wähle _**Sonstiges**_ in der Spalte _Versanddienstleister_ aus
   * Hinterlege `https://www.general-overnight.com/deu_de/sendungsverfolgung.html?reference=$PaketNr` als Tracking-URL
 4. Erstelle deine **[Versandprofile](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#1000)** und **[Portotabellen](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#1500)** für _**GO! Express**_
 
@@ -58,12 +58,6 @@ Du kannst in deinem Versandprofil über die Option **[E-Mail und Telefon übertr
 
 <div class="alert alert-warning" role="alert">
     Falls du die Checkbox <strong>Einwilligung zur Datenübermittlung</strong> aktiviert hast: Wenn die Person der Übertragung der Daten nicht zustimmt und du keine alternative E-Mail-Adresse im Versandprofil eingegeben hast, wird eine Fehlermeldung angezeigt und der Auftrag kann nicht bei GO! angemeldet werden.
-</div>
-
----
-
-<div class="alert alert-danger" role="alert">
-    Aufgrund von Formateinschränkungen innerhalb der Schnittstelle (separate Felder für Ländercode, Ortsvorwahl, Nummer) wird die Telefonnummer derzeit in keinem Fall übermittelt.
 </div>
 
 ## Credits

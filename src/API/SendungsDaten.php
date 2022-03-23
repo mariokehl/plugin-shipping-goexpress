@@ -71,6 +71,12 @@ class SendungsDaten
     public $Selbstabholung = null;
 
     /**
+     * @var string $Abholhinweise
+     * @access public
+     */
+    public $Abholhinweise = null;
+
+    /**
      * @var string $Zustellhinweise
      * @access public
      */
@@ -83,13 +89,21 @@ class SendungsDaten
     public $SendungsPosition = null;
 
     /**
+     * @var Zustelldatum|null $Zustelldatum
+     * @access public
+     */
+    public $Zustelldatum = null;
+
+    /**
      * @param integer $Versender
      * @param Empfaenger $Empfaenger
      * @param Abholadresse $Abholadresse
      * @param Abholdatum $Abholdatum
      * @param SendungsPosition $SendungsPosition
      * @param string $Kundenreferenz
+     * @param string $Abholhinweise
      * @param string $Zustellhinweise
+     * @param Zustelldatum|null $Zustelldatum
      * @access public
      */
     public function __construct(
@@ -99,11 +113,13 @@ class SendungsDaten
         $Abholdatum,
         $SendungsPosition,
         $Kundenreferenz,
-        $Zustellhinweise = ''
+        $Abholhinweise = '',
+        $Zustellhinweise = '',
+        $Zustelldatum = null
     ) {
         $this->Versender = $Versender;
         $this->Status = Status::freigegeben;
-        $this->Kundenreferenz = $Kundenreferenz;
+        $this->Kundenreferenz = substr($Kundenreferenz, 0, 40);
         $this->Abholadresse = $Abholadresse;
         $this->Empfaenger = $Empfaenger;
         if (trim($Empfaenger->Land) === 'DE') {
@@ -115,8 +131,10 @@ class SendungsDaten
         $this->unfrei = KzUnfrei::frei;
         $this->Selbstanlieferung = KzSelbstanlieferung::Abholung;
         $this->Selbstabholung = KzSelbstabholung::Zustellung;
-        $this->Zustellhinweise = $Zustellhinweise;
+        $this->Abholhinweise = substr($Abholhinweise, 0, 128);
+        $this->Zustellhinweise = substr($Zustellhinweise, 0, 128);
         $this->SendungsPosition = $SendungsPosition;
+        $this->Zustelldatum = $Zustelldatum;
     }
 
     /**

@@ -53,6 +53,12 @@ class Empfaenger
     public $Email = null;
 
     /**
+     * @var Ansprechpartner $Ansprechpartner
+     * @access public
+     */
+    public $Ansprechpartner = null;
+
+    /**
      * @param string $Firmenname1
      * @param string $Strasse1
      * @param string $Hausnummer
@@ -72,5 +78,15 @@ class Empfaenger
         $this->Postleitzahl = substr($Postleitzahl, 0, 9);
         $this->Stadt = substr($Stadt, 0, 30);
         $this->Email = substr($Email, 0, 100);
+    }
+
+    /**
+     * Set the value of Ansprechpartner
+     */
+    public function setAnsprechpartner($Ansprechpartner): self
+    {
+        $this->Ansprechpartner = $Ansprechpartner;
+
+        return $this;
     }
 }

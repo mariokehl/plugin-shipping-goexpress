@@ -73,6 +73,7 @@
           "required": true,
           "label": "Config.SenderAX4ID",
           "options": {
+            "tooltip": "Config.SenderAX4IDTooltip",
             "defaultValue": ""
           }
         },
@@ -149,12 +150,23 @@
             "defaultValue": "18:00"
           }
         },
+        "shipping.pickupNotice": {
+          "type": "inputText",
+          "label": "Config.ShippingPickupNotice",
+          "options": {
+            "defaultValue": ""
+          }
+        },
         "shipping.deliveryNotice": {
           "type": "inputText",
           "label": "Config.ShippingDeliveryNotice",
           "options": {
             "defaultValue": ""
           }
+        },
+        "shipping.enableSaturdayDelivery": {
+          "type": "checkBox",
+          "label": "Config.ShippingEnableSaturdayDelivery"
         }
       }
     }
