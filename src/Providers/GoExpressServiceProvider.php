@@ -2,6 +2,7 @@
 
 namespace GoExpress\Providers;
 
+use GoExpress\Helpers\ShippingServiceProvider;
 use Plenty\Modules\Order\Shipping\ServiceProvider\Services\ShippingServiceProviderService;
 use Plenty\Plugin\ServiceProvider;
 
@@ -11,7 +12,6 @@ use Plenty\Plugin\ServiceProvider;
  */
 class GoExpressServiceProvider extends ServiceProvider
 {
-
     /**
      * Register the service provider.
      */
@@ -22,12 +22,11 @@ class GoExpressServiceProvider extends ServiceProvider
 
     public function boot(ShippingServiceProviderService $shippingServiceProviderService)
     {
-
         $shippingServiceProviderService->registerShippingProvider(
-            'GoExpress',
+            ShippingServiceProvider::PLUGIN_NAME,
             [
-                'de' => 'GO! Express Webservice',
-                'en' => 'GO! Express Webservice'
+                'de' => ShippingServiceProvider::SHIPPING_SERVICE_PROVIDER_NAME,
+                'en' => ShippingServiceProvider::SHIPPING_SERVICE_PROVIDER_NAME
             ],
             [
                 'GoExpress\\Controllers\\ShippingController@registerShipments',

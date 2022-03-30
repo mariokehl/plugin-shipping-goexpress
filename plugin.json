@@ -18,6 +18,9 @@
       },
       "isClosedSource": true,
       "serviceProvider": "GoExpress\\Providers\\GoExpressServiceProvider",
+      "runOnBuild": [
+            "GoExpress\\Migrations\\CreateShippingServiceProvider"
+      ],
       "license": "",
       "pluginIcon": "icon_plugin_xs.png",
       "author": "Bureau Mario Kehl",
