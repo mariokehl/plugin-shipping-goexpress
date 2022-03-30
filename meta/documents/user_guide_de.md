@@ -39,7 +39,11 @@ Sobald du von GO! die Freigabe für den Produktivbetrieb erhalten hast, musst du
 
 ### Versendereinstellungen
 
-Hinterlege im Bereich **Versender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Versand** deine Abholzeit und einen optionalen Zustellhinweis konfigurieren.
+Hinterlege im Bereich **Versender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Versand** deine Abholzeit und einen optionalen Abhol-/Zustellhinweis konfigurieren.
+
+<div class="alert alert-warning" role="alert">
+    Das Abholzeitfenster muss mindestens 120 Minuten betragen und Sendungen können nur bis spätestens 85 Minuten vorher angemeldet werden.
+</div>
 
 ## GO! Express als Versandoption
 
@@ -48,7 +52,7 @@ Wenn das Plugin erfolgreich installiert und die Tests erfolgreich verlaufen sind
 1. Aktiviere deine **[Lieferländer](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#100)**
 2. Erstelle deine (Versand-)**[Regionen](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#400)**
 3. Erstelle deinen **[Versanddienstleister](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#800)** _**GO! Express**_
-  * Wähle _**Sonstiges**_ in der Spalte _Versanddienstleister_ aus
+  * Wähle _**GO! Express Webservice**_ in der Spalte _Versanddienstleister_ aus
   * Hinterlege `https://www.general-overnight.com/deu_de/sendungsverfolgung.html?reference=$PaketNr` als Tracking-URL
 4. Erstelle deine **[Versandprofile](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#1000)** und **[Portotabellen](https://knowledge.plentymarkets.com/fulfillment/versand-vorbereiten#1500)** für _**GO! Express**_
 

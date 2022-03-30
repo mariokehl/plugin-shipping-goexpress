@@ -1,5 +1,17 @@
 # Release Notes for GO! Express
 
+## v1.0.3 (2022-03-30)
+
+### Changed
+- The default URLs of the web service endpoints in the plugin configuration have been adjusted
+- There is now a warning about pickup times in the description
+
+### Fixed
+- The plugin now registers its own shipping service provider so that the wizard for configuring the shipping settings can be run through. This fixes the error message "Plugin does not have configuration for this shipping profile" in the shipping process
+
+### TODO
+- Check the configuration of the shipping service provider and under **Orders » Shipping » Options** in the Shipping service provider column, instead of Sonstiges, select the new entry _**GO! Express Webservice**_
+
 ## v1.0.2 (2022-03-22)
 
 ### Added

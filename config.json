@@ -32,7 +32,7 @@
                 "label": "Config.GlobalDemoWebserviceUri",
                 "required": true,
                 "options": {
-                  "defaultValue": "https://wsdemo.ax4.com/ws/GeneralOvernight/SendungsDaten"
+                  "defaultValue": "https://wsdemo.ax4.com/ws/4020/GOGenericWS/SendungsDaten"
                 }
               },
               "global.container.webserviceFinalUri": {
@@ -40,7 +40,7 @@
                 "label": "Config.GlobalFinalWebserviceUri",
                 "required": true,
                 "options": {
-                  "defaultValue": "https://webservice.ax4.com/ws/GeneralOvernight/SendungsDaten"
+                  "defaultValue": "https://webservice.ax4.com/ws/4020/GOGenericWS/SendungsDaten"
                 }
               }
             }

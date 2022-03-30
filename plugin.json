@@ -9,7 +9,7 @@
       ],
       "namespace": "GoExpress",
       "type": "shipping",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "price": 79.99,
       "description": "plentymarkets plugin for shipping provider GO! Express",
       "shortDescription": {
@@ -18,6 +18,9 @@
       },
       "isClosedSource": true,
       "serviceProvider": "GoExpress\\Providers\\GoExpressServiceProvider",
+      "runOnBuild": [
+            "GoExpress\\Migrations\\CreateShippingServiceProvider"
+      ],
       "license": "",
       "pluginIcon": "icon_plugin_xs.png",
       "author": "Bureau Mario Kehl",

@@ -39,7 +39,11 @@ As soon as you are from GO! have received the release for productive operation, 
 
 ### Shipper Settings
 
-Enter your address data according to registration in the **Sender** area. You can also configure your pick-up time and an optional delivery note under **Shipping**.
+Enter your address data according to registration in the **Sender** area. You can also configure your pick-up time and an optional pick-up and or delivery notice under **Shipping**.
+
+<div class="alert alert-warning" role="alert">
+    The pick-up time window must be at least 120 minutes and shipments can only be registered at least 85 minutes in advance.
+</div>
 
 ## GO! Express as a shipping option
 
@@ -48,7 +52,7 @@ If the plugin has been successfully installed and the tests have been successful
 1. Activate your **[delivery countries](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#100)**
 2. Create your (shipping)**[regions](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#400)**
 3. Create your **[Shipping Service Provider](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#800)** _**GO! Express**_
-  * Choose _**Sonstiges**_ in the _Shipping Service Provider_ column
+  * Choose _**GO! Express Webservice**_ in the _Shipping Service Provider_ column
   * Store `https://www.general-overnight.com/deu_en/sendungsverfolgung.html?reference=$PaketNr` as tracking URL
 4. Create your **[shipping profiles](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#1000)** and **[table of shipping charges](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#1500)** for _**GO! Express**_
 
