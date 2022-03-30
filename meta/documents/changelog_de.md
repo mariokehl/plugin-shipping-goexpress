@@ -1,5 +1,17 @@
 # Versionshinweise für GO! Express
 
+## v1.0.3 (30.03.2022)
+
+### Geändert
+- Die Standard-URLs der Webservice-Endpunkte in der Plugin-Konfiguration wurden angepasst
+- In der Beschreibung gibt es nun einen Warnhinweis bezüglich Abholzeiten
+
+### Behoben
+- Das Plugin registriert nun einen eigenen Versanddienstleister, so dass der Assistent zur Konfiguration der Versandeinstellungen durchlaufen werden kann. Dies behebt die Fehlermeldung "Plugin does not have configuration for this shipping profile" im Versand-Prozess
+
+### TODO
+- Überprüfe die Konfiguration der Versanddienstleister und wähle unter **Aufträge » Versand » Optionen** in der Spalte Versanddienstleister statt Sonstiges den neuen Eintrag _**GO! Express Webservice**_  aus
+
 ## v1.0.2 (22.03.2022)
 
 ### Hinzugefügt
