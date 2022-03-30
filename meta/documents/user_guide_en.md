@@ -42,8 +42,10 @@ As soon as you are from GO! have received the release for productive operation, 
 Enter your address data according to registration in the **Sender** area. You can also configure your pick-up time and an optional pick-up and or delivery notice under **Shipping**.
 
 <div class="alert alert-warning" role="alert">
-    The pick-up time window must be at least 120 minutes and shipments can only be registered at least 85 minutes in advance.
+    The pick-up time window must be at least 120 minutes and shipments can only be registered at the latest before the start of the time window.
 </div>
+
+You can use the lead time to automatically postpone shipments that are registered after X minutes before the start of pick-up to the next working day (Mon-Fri). If you want to prohibit this, enter a 0 in the plugin configuration and shipments can then NOT be registered for the current day.
 
 ## GO! Express as a shipping option
 

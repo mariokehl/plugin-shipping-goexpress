@@ -42,8 +42,10 @@ Sobald du von GO! die Freigabe für den Produktivbetrieb erhalten hast, musst du
 Hinterlege im Bereich **Versender** deine Adressdaten gemäß Registrierung. Zusätzlich kannst du unter **Versand** deine Abholzeit und einen optionalen Abhol-/Zustellhinweis konfigurieren.
 
 <div class="alert alert-warning" role="alert">
-    Das Abholzeitfenster muss mindestens 120 Minuten betragen und Sendungen können nur bis spätestens 85 Minuten vorher angemeldet werden.
+    Das Abholzeitfenster muss mindestens 120 Minuten betragen und Sendungen können nur bis spätestens vor Beginn des Zeitfensters angemeldet werden.
 </div>
+
+Über die Vorlaufzeit kannst du Sendungen, welche nach X Minuten vor Beginn der Abholung angemeldet werden, automatisch auf den nächsten Werktag (Mo-Fr) schieben. Falls du dies verbieten möchtest, trage in der Plugin-Konfiguration eine 0 ein und Sendungen können dann NICHT mehr für den aktuellen Tag angemeldet werden.
 
 ## GO! Express als Versandoption
 

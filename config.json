@@ -136,6 +136,14 @@
     "shipping": {
       "label": "Config.Shipping",
       "formFields": {
+        "shipping.pickupLeadTime": {
+          "type": "inputText",
+          "label": "Config.ShippingPickupLeadTime",
+          "options": {
+            "tooltip": "Config.ShippingPickupLeadTimeTooltip",
+            "defaultValue": "5"
+          }
+        },
         "shipping.pickupTimeFrom": {
           "type": "inputText",
           "label": "Config.ShippingPickupTimeFrom",
