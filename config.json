@@ -172,6 +172,28 @@
             "defaultValue": ""
           }
         },
+        "shipping.customerReference": {
+          "type": "selectBox",
+          "required": true,
+          "label": "Config.ShippingCustomerReference",
+          "options": {
+            "defaultValue": "order_number",
+            "selectBoxValues": [
+              {
+                "value": "order_number",
+                "caption": "Config.ShippingCustomerReferenceOrderNo"
+              },
+              {
+                "value": "external_order_number",
+                "caption": "Config.ShippingCustomerReferenceExtOrderNo"
+              },
+              {
+                "value": "both_order_numbers",
+                "caption": "Config.ShippingCustomerReferenceBothOrderNumbers"
+              }
+            ]
+          }
+        },
         "shipping.enableSaturdayDelivery": {
           "type": "checkBox",
           "label": "Config.ShippingEnableSaturdayDelivery"

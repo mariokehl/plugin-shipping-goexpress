@@ -315,14 +315,28 @@ class GoExpressFactory
      */
     public function setKundenreferenz($orderId)
     {
+        // Default and fallback value
+        $this->Kundenreferenz = $orderId;
+
+        // Get the property
         $orderPropertyCollection = $this->orderPropertyRepositoryContract->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
         $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.OrderProperties', [
             'EXTERNAL_ORDER_ID' => json_encode($orderPropertyCollection)
         ]);
-        if ($externalOrderId = $orderPropertyCollection->first()) {
-            $this->Kundenreferenz = $externalOrderId->value;
-        } else {
-            $this->Kundenreferenz = $orderId;
+
+        // The selected transfer mode
+        $mode = $this->config->get('GoExpress.shipping.customerReference', 'order_number');
+
+        if (
+            $orderPropertyCollection->first() &&
+            in_array($mode, ['external_order_number', 'both_order_numbers'])
+        ) {
+            $externalOrderId = $orderPropertyCollection->first()->value;
+            if ($mode === 'external_order_number') {
+                $this->Kundenreferenz = $externalOrderId;
+            } else {
+                $this->Kundenreferenz = implode(' ', [$orderId, '/', $externalOrderId]);
+            }
         }
     }
 
