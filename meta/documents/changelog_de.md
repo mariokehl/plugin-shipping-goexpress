@@ -1,5 +1,11 @@
 # Versionshinweise für GO! Express
 
+## v1.0.4 (06.04.2022)
+
+### Hinzugefügt
+- Neue Konfiguration Vorlaufzeit: alle Sendungen nach X Minuten vor Beginn der Abholzeit werden auf den nächsten Werktag verschoben
+- Es ist nun über eine Auswahl in der Konfiguration möglich zu bestimmen, welche Nummer als Kundenreferenz übertragen wird: Auftrags-ID, Ext. Auftragsnummer oder beide
+
 ## v1.0.3 (30.03.2022)
 
 ### Geändert
