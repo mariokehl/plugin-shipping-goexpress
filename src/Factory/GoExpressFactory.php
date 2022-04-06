@@ -2,6 +2,7 @@
 
 namespace GoExpress\Factory;
 
+use Carbon\Carbon;
 use GoExpress\API\GOWebService;
 use GoExpress\API\Abholadresse;
 use GoExpress\API\Abholdatum;
@@ -36,6 +37,7 @@ class GoExpressFactory
      * Webservice constants
      */
     const WEBSERVICE_DATE_FORMAT = 'd.m.Y';
+    const WEBSERVICE_TIME_FORMAT = 'H:i:s';
 
     /**
      * @var ConfigRepository $config
@@ -175,18 +177,41 @@ class GoExpressFactory
     }
 
     /**
-     * WARNING: shipments can no longer be registered for the current day after 3 p.m.
-     * If it is done anyway, it will result in a webservice error. Maybe this should be catched and the date adjusted accordingly!
-     * 
      * @return Abholdatum
      */
     private function getAbholdatum()
     {
+        // Default pickup date is today, on weekends the next business day (monday)
+        $now = Carbon::now()->isWeekday() ? Carbon::now() : Carbon::now()->startOfWeek()->addWeek();
+        $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Carbon', ['now' => $now]);
+
+        $pickupTimeFrom = $this->config->get('GoExpress.shipping.pickupTimeFrom', '15:30');
+        $pickupTimeTo = $this->config->get('GoExpress.shipping.pickupTimeTo', '18:30');
+
+        // Should shipments be moved to next working day if it is too late?
+        if (Carbon::now()->isWeekday() && ($pickupLeadTime = $this->config->get('GoExpress.shipping.pickupLeadTime'))) {
+            $latestPickup = Carbon::now();
+            list($hour, $minute) = explode(':', $pickupTimeFrom);
+            $latestPickup->setTime(intval($hour), intval($minute));
+            $latestPickup->modify('-'. intval($pickupLeadTime) . ' minutes');
+            if ($isTooLate = ($now > $latestPickup)) {
+                // Finds the next weekday from a specific date (not including Saturday or Sunday; Holidays aren't considered!)
+                $now->addWeekday();
+            }
+            $this->getLogger(__METHOD__)->debug('GoExpress::Webservice.Abholzeit', [
+                'latestPickup' => $latestPickup->format(self::WEBSERVICE_DATE_FORMAT . ' ' . self::WEBSERVICE_TIME_FORMAT),
+                'isTooLate' => $isTooLate
+            ]);
+        }
+
+        $pickupDate = $now->format(self::WEBSERVICE_DATE_FORMAT);
+        $this->getLogger(__METHOD__)->debug('GoExpress::Webservice.Abholdatum', ['pickupDate' => $pickupDate]);
+
         /** @var Abholdatum $instance */
         $instance = pluginApp(Abholdatum::class, [
-            date(self::WEBSERVICE_DATE_FORMAT),
-            $this->config->get('GoExpress.shipping.pickupTimeFrom', '15:30'),
-            $this->config->get('GoExpress.shipping.pickupTimeTo', '18:30')
+            $pickupDate,
+            $pickupTimeFrom,
+            $pickupTimeTo
         ]);
 
         return $instance;
@@ -290,14 +315,28 @@ class GoExpressFactory
      */
     public function setKundenreferenz($orderId)
     {
+        // Default and fallback value
+        $this->Kundenreferenz = $orderId;
+
+        // Get the property
         $orderPropertyCollection = $this->orderPropertyRepositoryContract->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
         $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.OrderProperties', [
             'EXTERNAL_ORDER_ID' => json_encode($orderPropertyCollection)
         ]);
-        if ($externalOrderId = $orderPropertyCollection->first()) {
-            $this->Kundenreferenz = $externalOrderId->value;
-        } else {
-            $this->Kundenreferenz = $orderId;
+
+        // The selected transfer mode
+        $mode = $this->config->get('GoExpress.shipping.customerReference', 'order_number');
+
+        if (
+            $orderPropertyCollection->first() &&
+            in_array($mode, ['external_order_number', 'both_order_numbers'])
+        ) {
+            $externalOrderId = $orderPropertyCollection->first()->value;
+            if ($mode === 'external_order_number') {
+                $this->Kundenreferenz = $externalOrderId;
+            } else {
+                $this->Kundenreferenz = implode(' ', [$orderId, '/', $externalOrderId]);
+            }
         }
     }
 
@@ -335,11 +374,23 @@ class GoExpressFactory
         $enableSaturdayDelivery = $this->config->get('GoExpress.shipping.enableSaturdayDelivery');
         if ($enableSaturdayDelivery === 'false') return;
 
-        // gets day of week as number (0=sunday, 1=monday..., 6=saturday)
-        $isFriday = (date('w') == 5);
-        $nextDay = date(self::WEBSERVICE_DATE_FORMAT, strtotime('tomorrow'));
+        // if it's too late to register shipment on friday, it has to be moved to next monday and skipped for saturday delivery
+        $pickupDate = Carbon::createFromFormat(self::WEBSERVICE_DATE_FORMAT, $this->Abholdatum->Datum);
 
-        $this->getLogger(__METHOD__)->debug('GoExpress::Webservice.Zustelldatum', ['isFriday' => $isFriday, 'nextDay' => $nextDay]);
+        // gets representation of the day of the week as string (1=monday..., 6=saturday, 7=sunday)
+        $isoDayOfWeek = $pickupDate->format('N');
+        $isFriday = ($isoDayOfWeek === '5');
+        $nextDay = $pickupDate->modify('+1 day')->format(self::WEBSERVICE_DATE_FORMAT);
+
+        $this->getLogger(__METHOD__)->debug('GoExpress::Webservice.Zustelldatum', [
+            'pickup' => [
+                'isoDayOfWeek' => $isoDayOfWeek,
+                'isFriday' => $isFriday
+            ],
+            'delivery' => [
+                'nextDay' => $nextDay
+            ]
+        ]);
 
         if ($isFriday) {
             /** @var Zustelldatum $instance */

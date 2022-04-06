@@ -1,5 +1,11 @@
 # Release Notes for GO! Express
 
+## v1.0.4 (2022-04-06)
+
+### Added
+- New configuration lead time: all shipments after N minutes before the start of the pickup time will be postponed to the next business day
+- It is now possible to determine via a selection in the configuration which number is transmitted as customer reference: Order ID, external order number or both
+
 ## v1.0.3 (2022-03-30)
 
 ### Changed
