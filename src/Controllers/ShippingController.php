@@ -179,49 +179,6 @@ class ShippingController extends Controller
 	}
 
 	/**
-	 * Cancels registered shipment(s)
-	 *
-	 * @param Request $request
-	 * @param array $orderIds
-	 * @internal see GoExpressServiceProvider
-	 * @return array
-	 */
-	public function deleteShipments(Request $request, $orderIds)
-	{
-		$orderIds = $this->getOrderIds($request, $orderIds);
-		foreach ($orderIds as $orderId) {
-			$shippingInformation = $this->shippingInformationRepositoryContract->getShippingInformationByOrderId($orderId);
-
-			if (isset($shippingInformation->additionalData) && is_array($shippingInformation->additionalData)) {
-				foreach ($shippingInformation->additionalData as $additionalData) {
-					try {
-						$shipmentNumber = $additionalData['shipmentNumber'];
-
-						// use the shipping service provider's API here
-						$response = '';
-
-						$this->createOrderResult[$orderId] = $this->buildResultArray(
-							true,
-							'shipment deleted',
-							false,
-							null
-						);
-					} catch (\SoapFault $soapFault) {
-						// exception handling
-					}
-				}
-
-				// resets the shipping information of current order
-				$this->shippingInformationRepositoryContract->resetShippingInformation($orderId);
-			}
-		}
-
-		// return result array
-		return $this->createOrderResult;
-	}
-
-
-	/**
 	 * Retrieves the label file from PDFs response and saves it in S3 storage
 	 *
 	 * @param string $label
