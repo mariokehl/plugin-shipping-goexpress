@@ -1,5 +1,10 @@
 # Versionshinweise für GO! Express
 
+## v1.0.5 (06.05.2022)
+
+### Geändert
+- In der Beschreibung wurden die Querverweise in Richtung plentymarkets Handbuch angepasst
+
 ## v1.0.4 (06.04.2022)
 
 ### Hinzugefügt
