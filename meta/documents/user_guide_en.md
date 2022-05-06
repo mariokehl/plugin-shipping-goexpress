@@ -51,16 +51,16 @@ You can use the lead time to automatically postpone shipments that are registere
 
 If the plugin has been successfully installed and the tests have been successful, it is time to make the shipping service provider selectable as an option in the checkout of your shop.
 
-1. Activate your **[delivery countries](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#100)**
-2. Create your (shipping)**[regions](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#400)**
-3. Create your **[Shipping Service Provider](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#800)** _**GO! Express**_
+1. Activate your **[delivery countries](https://knowledge.plentymarkets.com/en-gb/manual/main/fulfilment/preparing-the-shipment.html#200)**
+2. Create your (shipping)**[regions](https://knowledge.plentymarkets.com/en-gb/manual/main/fulfilment/preparing-the-shipment.html#400)**
+3. Create your **[Shipping Service Provider](https://knowledge.plentymarkets.com/en-gb/manual/main/fulfilment/preparing-the-shipment.html#800)** _**GO! Express**_
   * Choose _**GO! Express Webservice**_ in the _Shipping Service Provider_ column
   * Store `https://www.general-overnight.com/deu_en/sendungsverfolgung.html?reference=$PaketNr` as tracking URL
-4. Create your **[shipping profiles](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#1000)** and **[table of shipping charges](https://knowledge.plentymarkets.com/en/slp/fulfillment/versand-vorbereiten#1500)** for _**GO! Express**_
+4. Create your **[shipping profiles](https://knowledge.plentymarkets.com/en-gb/manual/main/fulfilment/preparing-the-shipment.html#1000)** and **[table of shipping charges](https://knowledge.plentymarkets.com/en-gb/manual/main/fulfilment/preparing-the-shipment.html#1500)** for _**GO! Express**_
 
 ### GDPR: Information on data transmission (email and telephone)
 
-You can configure this in your shipping profile using the option **[Transfer email and phone](https://knowledge.plentymarkets.com/en/slp/business-entscheidungen/rechtliches/dsgvo#700)**. The customer's email address is in the interface of GO! a required field. So you have to transfer these at least in some form.
+You can configure this in your shipping profile using the option **[Transfer email and phone](https://knowledge.plentymarkets.com/en-gb/manual/main/business-decisions/gdpr.html#700)**. The customer's email address is in the interface of GO! a required field. So you have to transfer these at least in some form.
 
 <div class="alert alert-warning" role="alert">
     If you have activated the <strong>Agreement upon data transfer</strong> checkbox: If the person does not agree to the transfer of data and you have not entered an alternative email address in the shipping profile, an error message will be displayed and the order cannot be sent to GO! be registered.

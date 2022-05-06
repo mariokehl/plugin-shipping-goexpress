@@ -1,5 +1,10 @@
 # Release Notes for GO! Express
 
+## v1.0.5 (2022-05-06)
+
+### Changed
+- In the description, the cross-references to the plentymarkets manual have been adjusted
+
 ## v1.0.4 (2022-04-06)
 
 ### Added
