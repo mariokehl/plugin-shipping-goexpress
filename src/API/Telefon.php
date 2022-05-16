@@ -7,8 +7,21 @@ class Telefon
     const DEFAULT_LAENDERPREFIX = '0049';
 
     const LAENDERPREFIX_MAPPING = [
-        'DE' => '0049',
-        'AT' => '0043'
+        'DE' => '0049', // Deutschland
+        'AT' => '0043', // Österreich
+        'BE' => '0032', // Belgien
+        'DK' => '0045', // Dänemark
+        'FR' => '0033', // Frankreich
+        'GB' => '0044', // Großbritannien
+        'IT' => '0039', // Italien
+        'NL' => '0031', // Niederlande
+        'NO' => '0047', // Norwegen
+        'PL' => '0048', // Polen
+        'RO' => '0040', // Rumänien
+        'SE' => '0046', // Schweden
+        'CH' => '0041', // Schweiz
+        'ES' => '0034', // Spanien
+        'HU' => '0046', // Ungarn
     ];
 
     /**
