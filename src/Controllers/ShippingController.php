@@ -287,7 +287,7 @@ class ShippingController extends Controller
 	 */
 	private function buildShipmentItems($labelUrl, $shipmentNumber)
 	{
-		return  [
+		return [
 			'labelUrl' => $labelUrl,
 			'shipmentNumber' => $shipmentNumber,
 		];
