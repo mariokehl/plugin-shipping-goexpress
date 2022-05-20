@@ -31,7 +31,7 @@ class GoExpressFactory
      * Shipment constants
      */
     const DEFAULT_PACKAGE_NAME = 'Wareninhalt';
-    const MINIMUM_FALLBACK_WEIGHT = 0.2;
+    const MINIMUM_FALLBACK_WEIGHT = 0.2; // TODO: Standardgewicht über Konfiguration einstellbar machen
 
     /**
      * Webservice constants
@@ -222,6 +222,9 @@ class GoExpressFactory
      */
     private function getAbholhinweise()
     {
+        // TODO: Telefonnummer aus Lager dem Abholhinweis voranstellen
+        //...
+
         return $this->config->get('GoExpress.shipping.pickupNotice', '');
     }
 
@@ -274,6 +277,9 @@ class GoExpressFactory
             /** @var Ansprechpartner $receiverContact */
             $receiverContact = pluginApp(Ansprechpartner::class, [$receiverPhone]);
             $this->Empfaenger->setAnsprechpartner($receiverContact);
+
+            // TODO: Telefonnummer optional zusätzlich im Feld Strasse2 übertragen
+            //...
         }
     }
 
@@ -350,6 +356,9 @@ class GoExpressFactory
     {
         $deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
 
+        // TODO: Zustellhinweise in Abhängigkeit zum Inhalt setzen
+        //...
+
         /** @var Comment $comment */
         foreach ($comments as $comment) {
             if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
@@ -363,6 +372,7 @@ class GoExpressFactory
                 break;
             }
         }
+
         $this->Zustellhinweise = $deliveryNotice;
     }
 

@@ -219,7 +219,7 @@ class ShippingController extends Controller
 	 */
 	private function saveShippingInformation($orderId, $shipmentDate, $shipmentItems)
 	{
-		$transactionIds = array();
+		$transactionIds = [];
 		foreach ($shipmentItems as $shipmentItem) {
 			$transactionIds[] = $shipmentItem['shipmentNumber'];
 		}
@@ -249,7 +249,7 @@ class ShippingController extends Controller
 	 */
 	private function getOpenOrderIds($orderIds)
 	{
-		$openOrderIds = array();
+		$openOrderIds = [];
 		foreach ($orderIds as $orderId) {
 			$shippingInformation = $this->shippingInformationRepositoryContract->getShippingInformationByOrderId($orderId);
 			if ($shippingInformation->shippingStatus == null || $shippingInformation->shippingStatus == 'open') {
@@ -312,13 +312,13 @@ class ShippingController extends Controller
 	 * Returns all order ids from request object
 	 *
 	 * @param Request $request
-	 * @param $orderIds
+	 * @param mixed $orderIds
 	 * @return array
 	 */
 	private function getOrderIds(Request $request, $orderIds)
 	{
 		if (is_numeric($orderIds)) {
-			$orderIds = array($orderIds);
+			$orderIds = [$orderIds];
 		} else if (!is_array($orderIds)) {
 			$orderIds = $request->get('orderIds');
 		}
@@ -343,7 +343,7 @@ class ShippingController extends Controller
 			$width = null;
 			$height = null;
 		}
-		return array($length, $width, $height);
+		return [$length, $width, $height];
 	}
 
 	/**
@@ -357,7 +357,7 @@ class ShippingController extends Controller
 	public function getLabels(Request $request, $orderIds)
 	{
 		$orderIds = $this->getOrderIds($request, $orderIds);
-		$labels = array();
+		$labels = [];
 		foreach ($orderIds as $orderId) {
 			$results = $this->orderShippingPackage->listOrderShippingPackages($orderId);
 			/** @var OrderShippingPackage $result */
@@ -386,9 +386,12 @@ class ShippingController extends Controller
 	 */
 	private function handleAfterRegisterShipment($response, $packageId)
 	{
-		$shipmentItems = array();
+		$shipmentItems = [];
 
 		$shipmentData = array_shift($response->Sendung);
+
+		// TODO: Rückgabe des Routerlabels konfigurierbar machen (Routerlabel oder RouterlabelZebra)
+		//...
 
 		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($shipmentData->PDFs->Routerlabel)) {
 			$shipmentNumber = $shipmentData->Frachtbriefnummer;

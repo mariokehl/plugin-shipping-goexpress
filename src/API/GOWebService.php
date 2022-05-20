@@ -34,7 +34,7 @@ class GOWebService extends \SoapClient
      * @param string $mode The environment to use (DEMO|FINAL)
      * @access public
      */
-    public function __construct(array $options = array(), $mode = 'DEMO')
+    public function __construct(array $options = [], $mode = 'DEMO')
     {
         if (isset($options['wsdl']) === false) {
             $wsdl = self::$wsdlFiles[$mode] . '?wsdl';
