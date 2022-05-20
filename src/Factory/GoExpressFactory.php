@@ -139,6 +139,16 @@ class GoExpressFactory
     }
 
     /**
+     * Returns the XML tag to use for PDF labels.
+     *
+     * @return string
+     */
+    public function getPDFLabelFormat()
+    {
+        return $this->config->get('GoExpress.advanced.pdfLabelTag');
+    }
+
+    /**
      * Initialize the factory
      *
      * @return void

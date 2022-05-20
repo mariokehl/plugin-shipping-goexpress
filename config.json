@@ -199,6 +199,29 @@
           "label": "Config.ShippingEnableSaturdayDelivery"
         }
       }
-    }
+    },
+    "advanced": {
+      "label": "Config.Advanced",
+      "formFields": {
+        "advanced.pdfLabelTag": {
+          "type": "selectBox",
+          "required": true,
+          "label": "Config.AdvancedPDFLabelTag",
+          "options": {
+            "defaultValue": "Routerlabel",
+            "selectBoxValues": [
+              {
+                "value": "Routerlabel",
+                "caption": "Config.AdvancedPDFLabelTagRouterlabel"
+              },
+              {
+                "value": "RouterlabelZebra",
+                "caption": "Config.AdvancedPDFLabelTagRouterlabelZebra"
+              }
+            ]
+          }
+        }
+      }
+    } 
   }
 }

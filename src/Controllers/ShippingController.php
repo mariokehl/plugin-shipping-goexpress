@@ -386,18 +386,21 @@ class ShippingController extends Controller
 	 */
 	private function handleAfterRegisterShipment($response, $packageId)
 	{
-		$shipmentItems = [];
-
 		$shipmentData = array_shift($response->Sendung);
 
-		// TODO: Rückgabe des Routerlabels konfigurierbar machen (Routerlabel oder RouterlabelZebra)
-		//...
+		if ($this->factory->getPDFLabelFormat() === 'RouterlabelZebra') {
+			$PDFLabel = $shipmentData->PDFs->RouterlabelZebra;
+		} else {
+			$PDFLabel = $shipmentData->PDFs->Routerlabel;
+		}
 
-		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($shipmentData->PDFs->Routerlabel)) {
+		$shipmentItems = [];
+
+		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($PDFLabel)) {
 			$shipmentNumber = $shipmentData->Frachtbriefnummer;
-			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['length' => strlen($shipmentData->PDFs->Routerlabel)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['length' => strlen($PDFLabel)]);
 			$storageObject = $this->saveLabelToS3(
-				$shipmentData->PDFs->Routerlabel,
+				$PDFLabel,
 				$packageId . '.pdf'
 			);
 			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['storageObject' => json_encode($storageObject)]);
