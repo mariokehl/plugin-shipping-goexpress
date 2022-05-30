@@ -31,7 +31,7 @@ class GoExpressFactory
      * Shipment constants
      */
     const DEFAULT_PACKAGE_NAME = 'Wareninhalt';
-    const MINIMUM_FALLBACK_WEIGHT = 0.2; // TODO: Standardgewicht über Konfiguration einstellbar machen
+    const MINIMUM_FALLBACK_WEIGHT = 200;
 
     /**
      * Webservice constants
@@ -319,10 +319,21 @@ class GoExpressFactory
         /** @var SendungsPosition $instance */
         $parcelData = pluginApp(SendungsPosition::class, [
             $packageCount,
-            $packageWeights ? $packageWeights : self::MINIMUM_FALLBACK_WEIGHT,
+            $packageWeights ? $packageWeights : $this->getMinimumFallbackWeight(),
             $firstPackageName
         ]);
         $this->SendungsPosition = $parcelData;
+    }
+
+    /**
+     * @return float
+     */
+    private function getMinimumFallbackWeight(): float
+    {
+        $grams = $this->config->get('GoExpress.shipping.minimumWeight', self::MINIMUM_FALLBACK_WEIGHT);
+        $kilograms = sprintf('%.2f', $grams / 1000);
+
+        return floatval($kilograms);
     }
 
     /**
@@ -366,7 +377,7 @@ class GoExpressFactory
     {
         $deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
 
-        // TODO: Zustellhinweise in Abhängigkeit zum Inhalt setzen
+        // TODO: Zustellhinweise in Abhängigkeit zum Paketinhalt setzen
         //...
 
         /** @var Comment $comment */

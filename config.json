@@ -136,6 +136,14 @@
     "shipping": {
       "label": "Config.Shipping",
       "formFields": {
+        "shipping.minimumWeight": {
+          "type": "inputText",
+          "label": "Config.ShippingMinimumWeight",
+          "options": {
+            "required": true,
+            "defaultValue": "200"
+          }
+        },
         "shipping.pickupLeadTime": {
           "type": "inputText",
           "label": "Config.ShippingPickupLeadTime",
