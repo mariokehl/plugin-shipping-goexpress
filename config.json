@@ -213,6 +213,10 @@
         "shipping.enableSaturdayDelivery": {
           "type": "checkBox",
           "label": "Config.ShippingEnableSaturdayDelivery"
+        },
+        "shipping.enablePhoneNumberOnShippingLabel": {
+          "type": "checkBox",
+          "label": "Config.ShippingEnablePhoneNumberOnShippingLabel"
         }
       }
     },

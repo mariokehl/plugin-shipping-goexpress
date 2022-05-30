@@ -288,8 +288,11 @@ class GoExpressFactory
             $receiverContact = pluginApp(Ansprechpartner::class, [$receiverPhone]);
             $this->Empfaenger->setAnsprechpartner($receiverContact);
 
-            // TODO: Telefonnummer optional zusätzlich im Feld Strasse2 übertragen
-            //...
+            // Also transfer the telephone number in the Abteilung field (visible on the shipping label)
+            $enablePhoneNumberOnShippingLabel = $this->config->get('GoExpress.shipping.enablePhoneNumberOnShippingLabel');
+            if ($enablePhoneNumberOnShippingLabel === 'true') {
+                $this->Empfaenger->setAbteilung($phoneNumber);
+            }
         }
     }
 
