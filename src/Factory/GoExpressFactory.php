@@ -203,7 +203,7 @@ class GoExpressFactory
             $latestPickup = Carbon::now();
             list($hour, $minute) = explode(':', $pickupTimeFrom);
             $latestPickup->setTime(intval($hour), intval($minute));
-            $latestPickup->modify('-'. intval($pickupLeadTime) . ' minutes');
+            $latestPickup->modify('-' . intval($pickupLeadTime) . ' minutes');
             if ($isTooLate = ($now > $latestPickup)) {
                 // Finds the next weekday from a specific date (not including Saturday or Sunday; Holidays aren't considered!)
                 $now->addWeekday();
@@ -368,7 +368,7 @@ class GoExpressFactory
     }
 
     /**
-     * Overwrite default delivery notice if necessary (comment must contain @goexpress)
+     * Overwrite default delivery notice if necessary (either per package or order comment must contain @goexpress)
      * 
      * @param array $comments
      * @return void
@@ -377,10 +377,18 @@ class GoExpressFactory
     {
         $deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
 
-        // TODO: Zustellhinweise in Abhängigkeit zum Paketinhalt setzen
-        //...
+        /**
+         * Delivery instructions depending on the package content
+         */
+        if ($packageOverwrite = $this->getPaketZustellhinweis()) {
+            $deliveryNotice = $packageOverwrite;
+        }
 
-        /** @var Comment $comment */
+        /**
+         * Individual delivery information per shipment
+         * 
+         * @var Comment $comment
+         */
         foreach ($comments as $comment) {
             if (!$comment->userId || !stripos($comment->text, '@goexpress')) {
                 continue;
@@ -395,6 +403,33 @@ class GoExpressFactory
         }
 
         $this->Zustellhinweise = $deliveryNotice;
+    }
+
+    /**
+     * Delivery notice per package instead of shipment level
+     *
+     * @return mixed
+     */
+    private function getPaketZustellhinweis()
+    {
+        if ($this->SendungsPosition && $this->SendungsPosition instanceof SendungsPosition) {
+            $content = $this->SendungsPosition->Inhalt;
+            $mapping = [];
+            $lines = preg_split("/\r\n|\n|\r/", $this->config->get('GoExpress.shipping.packageDeliveryNotice'));
+            foreach ($lines as $val) {
+                $tmp = explode('=', $val);
+                $mapping[$tmp[0]] = $tmp[1];
+            }
+            $packageNames = array_keys($mapping);
+            foreach ($packageNames as $pkg) {
+                if (strpos($content, $pkg) !== false) {
+                    return $mapping[$pkg];
+                }
+            }
+            return '';
+        } else {
+            return false;
+        }
     }
 
     /**

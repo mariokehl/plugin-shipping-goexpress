@@ -180,6 +180,14 @@
             "defaultValue": ""
           }
         },
+        "shipping.packageDeliveryNotice": {
+          "type": "inputTextArea",
+          "label": "Config.ShippingPackageDeliveryNotice",
+          "options": {
+            "tooltip": "Config.ShippingPackageDeliveryNoticeTooltip",
+            "defaultValue": ""
+          }
+        },
         "shipping.customerReference": {
           "type": "selectBox",
           "required": true,
