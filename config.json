@@ -240,6 +240,18 @@
               }
             ]
           }
+        },
+        "advanced.warehouseSenderConfig": {
+          "type": "inputTextArea",
+          "label": "Config.AdvancedWarehouseSenderConfig",
+          "options": {
+            "tooltip": "Config.AdvancedWarehouseSenderConfigTooltip",
+            "defaultValue": "{}"
+          }
+        },
+        "advanced.enableWarehouseSender": {
+          "type": "checkBox",
+          "label": "Config.AdvancedEnableWarehouseSender"
         }
       }
     } 

@@ -15,6 +15,7 @@ use GoExpress\API\GOWebService;
 use GoExpress\API\SendungsDaten;
 use GoExpress\API\PDFLabelAnfrage;
 use GoExpress\Factory\GoExpressFactory;
+use Plenty\Modules\Order\Models\Order;
 use Plenty\Plugin\Log\Loggable;
 
 /**
@@ -87,8 +88,6 @@ class ShippingController extends Controller
 		$this->shippingInformationRepositoryContract = $shippingInformationRepositoryContract;
 
 		$this->factory = $factory;
-
-		$this->webservice = $this->factory->getWebserviceInstance();
 	}
 
 	/**
@@ -105,12 +104,22 @@ class ShippingController extends Controller
 		$orderIds = $this->getOpenOrderIds($orderIds);
 		$shipmentDate = date('Y-m-d');
 
+		// Initialize the webservice
+		$this->webservice = $this->factory->getWebserviceInstance();
+
 		// Initialize the factory
 		$this->factory->init();
 
 		foreach ($orderIds as $orderId) {
+			/** @var Order $order */
 			$order = $this->orderRepository->findOrderById($orderId);
-			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => json_encode($order)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => $order]);
+
+			// warehouse specific registering
+			if ($this->factory->isWarehouseSenderEnabled()) {
+				$this->webservice = $this->factory->getWebserviceInstanceForWarehouse($order->warehouseSenderId);
+				$this->factory->overwriteAbholadresseFromWarehouse($order->warehouseSender);
+			}
 
 			// gathering required data for registering the shipment
 			$this->factory->setEmpfaenger($order->deliveryAddress, $order->billingAddress);

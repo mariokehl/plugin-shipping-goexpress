@@ -13,9 +13,12 @@ use GoExpress\API\SendungsPosition;
 use GoExpress\API\SendungsDaten;
 use GoExpress\API\Zustelldatum;
 use Plenty\Modules\Account\Address\Models\Address;
+use Plenty\Modules\Account\Address\Models\AddressOption;
 use Plenty\Modules\Comment\Models\Comment;
 use Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract;
 use Plenty\Modules\Order\Property\Models\OrderPropertyType;
+use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
+use Plenty\Modules\Order\Shipping\Countries\Models\Country;
 use Plenty\Modules\Order\Shipping\PackageType\Contracts\ShippingPackageTypeRepositoryContract;
 use Plenty\Plugin\ConfigRepository;
 use Plenty\Plugin\Log\Loggable;
@@ -40,6 +43,12 @@ class GoExpressFactory
     const WEBSERVICE_TIME_FORMAT = 'H:i:s';
 
     /**
+     * Markers
+     */
+    const MARKER_WAREHOUSE_PHONE = '$Lager[Telefon]';
+    const MARKER_WAREHOUSE_EMAIL = '$Lager[E-Mail]';
+
+    /**
      * @var ConfigRepository $config
      */
     private $config;
@@ -55,21 +64,43 @@ class GoExpressFactory
     private $shippingPackageTypeRepositoryContract;
 
     /**
+     * @var CountryRepositoryContract $countryRepositoryContract
+     */
+    private $countryRepositoryContract;
+
+    /**
      * GoExpressFactory constructor.
      *
      * @param OrderPropertyRepositoryContract $orderPropertyRepositoryContract
      * @param ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract
+     * @param CountryRepositoryContract $countryRepositoryContract
      * @param ConfigRepository $config
      */
     public function __construct(
         OrderPropertyRepositoryContract $orderPropertyRepositoryContract,
         ShippingPackageTypeRepositoryContract $shippingPackageTypeRepositoryContract,
+        CountryRepositoryContract $countryRepositoryContract,
         ConfigRepository $config
     ) {
         $this->orderPropertyRepositoryContract = $orderPropertyRepositoryContract;
         $this->shippingPackageTypeRepositoryContract = $shippingPackageTypeRepositoryContract;
+        $this->countryRepositoryContract = $countryRepositoryContract;
         $this->config = $config;
     }
+
+    /**
+     * AX4 Versender ID
+     *
+     * @var integer
+     */
+    private $VersenderId = 0;
+
+    /**
+     * Firmenname des Versenders (in Abholadresse)
+     *
+     * @var string
+     */
+    private $Versender = '';
 
     /**
      * @var Abholadresse $Abholadresse
@@ -112,15 +143,35 @@ class GoExpressFactory
     private $Zustelldatum;
 
     /**
+     * @var array
+     */
+    private $markers = [
+        self::MARKER_WAREHOUSE_PHONE => '',
+        self::MARKER_WAREHOUSE_EMAIL => ''
+    ];
+
+    /**
      * Returns new instance of GO! web service
      *
+     * @param string $username
+     * @param string $password
      * @return GOWebService
      */
-    public function getWebserviceInstance()
+    public function getWebserviceInstance($username = '', $password = '')
     {
         // Get credentials by UI config
-        $partnerCredentialsUser = $this->config->get('GoExpress.global.username');
-        $partnerCredentialsPass = $this->config->get('GoExpress.global.password');
+        $partnerCredentialsUser = !empty($username) ? $username : $this->config->get('GoExpress.global.username');
+        $partnerCredentialsPass = !empty($password) ? $password : $this->config->get('GoExpress.global.password');
+
+        $this->getLogger(__METHOD__)->debug('GoExpress::Webservice.WSinit', [
+            'mode' => $this->config->get('GoExpress.global.mode'),
+            'wsdl' => [
+                $this->config->get('GoExpress.global.container.webserviceDemoUri'),
+                $this->config->get('GoExpress.global.container.webserviceFinalUri')
+            ],
+            'username' => $partnerCredentialsUser,
+            'password' => implode('', array_fill(0, strlen($partnerCredentialsPass), '*'))
+        ]);
 
         /** @var GOWebService $instance */
         $instance = pluginApp(GOWebService::class, [
@@ -136,6 +187,34 @@ class GoExpressFactory
         ]);
 
         return $instance;
+    }
+
+    /**
+     * @param mixed $warehouseSenderId
+     * @return GOWebService
+     */
+    public function getWebserviceInstanceForWarehouse($warehouseSenderId)
+    {
+        $warehouseConfig = json_decode($this->config->get('GoExpress.advanced.warehouseSenderConfig'), true);
+        if (array_key_exists($warehouseSenderId, $warehouseConfig)) {
+
+            $warehouseCredentials = $warehouseConfig[$warehouseSenderId];
+            $this->VersenderId = $warehouseCredentials['ax4_id'];
+            $this->Versender = $warehouseCredentials['title'];
+
+            $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Warehouse', [
+                'warehouseSenderId' => $warehouseSenderId,
+                'warehouseCredentials' => $warehouseCredentials['ax4_id'] . '|' . $warehouseCredentials['username']
+            ]);
+
+            return $this->getWebserviceInstance($warehouseCredentials['username'], $warehouseCredentials['password']);
+        } else {
+            $this->getLogger(__METHOD__)->warning('GoExpress::Plenty.WarehouseConfigNotFound', [
+                'warehouseSenderId' => $warehouseSenderId
+            ]);
+        }
+
+        return $this->getWebserviceInstance();
     }
 
     /**
@@ -155,6 +234,8 @@ class GoExpressFactory
      */
     public function init()
     {
+        $this->VersenderId = intval($this->config->get('GoExpress.sender.senderId', ''));
+        $this->Versender = $this->config->get('GoExpress.sender.senderName', '');
         $this->Abholadresse = $this->getAbholadresse();
         $this->Abholdatum = $this->getAbholdatum();
         $this->Abholhinweise = $this->getAbholhinweise();
@@ -162,11 +243,23 @@ class GoExpressFactory
     }
 
     /**
+     * @return boolean
+     */
+    public function isWarehouseSenderEnabled()
+    {
+        $enableWarehouseSender = $this->config->get('GoExpress.advanced.enableWarehouseSender');
+        if ($enableWarehouseSender === 'true') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @return Abholadresse
      */
     private function getAbholadresse()
     {
-        $senderName = $this->config->get('GoExpress.sender.senderName', '');
         $senderStreet = $this->config->get('GoExpress.sender.senderStreet', '');
         $senderNo = $this->config->get('GoExpress.sender.senderNo', '');
         $senderCountry = $this->config->get('GoExpress.sender.senderCountry', '');
@@ -175,7 +268,7 @@ class GoExpressFactory
 
         /** @var Abholadresse $instance */
         $instance = pluginApp(Abholadresse::class, [
-            $senderName,
+            $this->Versender,
             $senderStreet,
             $senderNo,
             $senderCountry,
@@ -184,6 +277,43 @@ class GoExpressFactory
         ]);
 
         return $instance;
+    }
+
+    /**
+     * @param mixed $warehouseSender
+     * @return Abholadresse
+     */
+    public function overwriteAbholadresseFromWarehouse($warehouseSender)
+    {
+        $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.WarehouseAddresses', ['warehouseSender' => $warehouseSender]);
+
+        /** @var Country $warehouseSenderCountry */
+        $warehouseSenderCountry = $this->countryRepositoryContract->getCountryById($warehouseSender->address->countryId);
+
+        /** @var Abholadresse $instance */
+        $instance = pluginApp(Abholadresse::class, [
+            $this->Versender,
+            $warehouseSender->address->address1,
+            $warehouseSender->address->address2,
+            $warehouseSenderCountry->isoCode2,
+            $warehouseSender->address->postalCode,
+            $warehouseSender->address->town
+        ]);
+
+        $this->Abholadresse = $instance;
+
+        foreach ($warehouseSender->address->options as $addressOption) {
+            switch ($addressOption->typeId) {
+                case AddressOption::TYPE_TELEPHONE:
+                    $this->markers[self::MARKER_WAREHOUSE_PHONE] = $addressOption->value;
+                    break;
+                case AddressOption::TYPE_EMAIL:
+                    $this->markers[self::MARKER_WAREHOUSE_EMAIL] = $addressOption->value;
+                    break;
+            }
+        }
+
+        $this->Abholhinweise = $this->getAbholhinweise();
     }
 
     /**
@@ -232,10 +362,7 @@ class GoExpressFactory
      */
     private function getAbholhinweise()
     {
-        // TODO: Telefonnummer aus Lager dem Abholhinweis voranstellen
-        //...
-
-        return $this->config->get('GoExpress.shipping.pickupNotice', '');
+        return $this->replaceMarkers($this->config->get('GoExpress.shipping.pickupNotice', ''));
     }
 
     /**
@@ -325,6 +452,7 @@ class GoExpressFactory
             $packageWeights ? $packageWeights : $this->getMinimumFallbackWeight(),
             $firstPackageName
         ]);
+
         $this->SendungsPosition = $parcelData;
     }
 
@@ -405,7 +533,7 @@ class GoExpressFactory
             }
         }
 
-        $this->Zustellhinweise = $deliveryNotice;
+        $this->Zustellhinweise = $this->replaceMarkers($deliveryNotice);
     }
 
     /**
@@ -476,7 +604,7 @@ class GoExpressFactory
     {
         /** @var SendungsDaten $instance */
         $instance = pluginApp(SendungsDaten::class, [
-            intval($this->config->get('GoExpress.sender.senderId', '')),
+            $this->VersenderId,
             $this->Empfaenger,
             $this->Abholadresse,
             $this->Abholdatum,
@@ -488,5 +616,18 @@ class GoExpressFactory
         ]);
 
         return $instance;
+    }
+
+    /**
+     * @param string $subject
+     * @return string
+     */
+    private function replaceMarkers($subject)
+    {
+        foreach ($this->markers as $key => $value) {
+            $subject = str_replace($key, $value, $subject);
+        }
+
+        return $subject;
     }
 }
