@@ -198,16 +198,18 @@ class GoExpressFactory
         $warehouseConfig = json_decode($this->config->get('GoExpress.advanced.warehouseSenderConfig'), true);
         if (array_key_exists($warehouseSenderId, $warehouseConfig)) {
 
-            $warehouseCredentials = $warehouseConfig[$warehouseSenderId];
-            $this->VersenderId = $warehouseCredentials['ax4_id'];
-            $this->Versender = $warehouseCredentials['title'];
+            $this->Versender = $warehouseConfig[$warehouseSenderId]['sender']['company_name'];
+            $this->VersenderId = $warehouseConfig[$warehouseSenderId]['sender']['ax4_id'];
 
             $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Warehouse', [
                 'warehouseSenderId' => $warehouseSenderId,
-                'warehouseCredentials' => $warehouseCredentials['ax4_id'] . '|' . $warehouseCredentials['username']
+                'warehouseConfig' => $this->Versender . '|' . $this->VersenderId
             ]);
 
-            return $this->getWebserviceInstance($warehouseCredentials['username'], $warehouseCredentials['password']);
+            return $this->getWebserviceInstance(
+                $warehouseConfig[$warehouseSenderId]['auth']['user'],
+                $warehouseConfig[$warehouseSenderId]['auth']['pass']
+            );
         } else {
             $this->getLogger(__METHOD__)->warning('GoExpress::Plenty.WarehouseConfigNotFound', [
                 'warehouseSenderId' => $warehouseSenderId
