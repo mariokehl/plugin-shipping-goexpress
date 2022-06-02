@@ -238,7 +238,7 @@ class GoExpressFactory
         $this->Versender = $this->config->get('GoExpress.sender.senderName', '');
         $this->Abholadresse = $this->getAbholadresse();
         $this->Abholdatum = $this->getAbholdatum();
-        $this->Abholhinweise = $this->getAbholhinweise();
+        $this->Abholhinweise = $this->setAbholhinweise($this->config->get('GoExpress.shipping.pickupNotice', ''));
         $this->Zustelldatum = $this->getZustelldatum();
     }
 
@@ -280,6 +280,15 @@ class GoExpressFactory
     }
 
     /**
+     * @param Abholadresse $Abholadresse
+     * @return void
+     */
+    private function setAbholadresse($Abholadresse)
+    {
+        $this->Abholadresse = $Abholadresse;
+    }
+
+    /**
      * @param mixed $warehouseSender
      * @return Abholadresse
      */
@@ -300,7 +309,7 @@ class GoExpressFactory
             $warehouseSender->address->town
         ]);
 
-        $this->Abholadresse = $instance;
+        $this->setAbholadresse($instance);
 
         foreach ($warehouseSender->address->options as $addressOption) {
             switch ($addressOption->typeId) {
@@ -313,7 +322,7 @@ class GoExpressFactory
             }
         }
 
-        $this->Abholhinweise = $this->getAbholhinweise();
+        $this->setAbholhinweise($this->getAbholhinweise());
     }
 
     /**
@@ -362,7 +371,16 @@ class GoExpressFactory
      */
     private function getAbholhinweise()
     {
-        return $this->replaceMarkers($this->config->get('GoExpress.shipping.pickupNotice', ''));
+        return $this->Abholhinweise;
+    }
+
+    /**
+     * @param string $Abholhinweise
+     * @return void
+     */
+    private function setAbholhinweise($Abholhinweise)
+    {
+        $this->Abholhinweise = $this->replaceMarkers($Abholhinweise);
     }
 
     /**
