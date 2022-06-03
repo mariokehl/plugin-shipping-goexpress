@@ -145,10 +145,7 @@ class GoExpressFactory
     /**
      * @var array
      */
-    private $markers = [
-        self::MARKER_WAREHOUSE_PHONE => '',
-        self::MARKER_WAREHOUSE_EMAIL => ''
-    ];
+    private $markers = [];
 
     /**
      * Returns new instance of GO! web service
@@ -157,7 +154,7 @@ class GoExpressFactory
      * @param string $password
      * @return GOWebService
      */
-    public function getWebserviceInstance($username = '', $password = '')
+    public function getWebserviceInstance($username = '', $password = ''): GOWebService
     {
         // Get credentials by UI config
         $partnerCredentialsUser = !empty($username) ? $username : $this->config->get('GoExpress.global.username');
@@ -193,17 +190,17 @@ class GoExpressFactory
      * @param mixed $warehouseSenderId
      * @return GOWebService
      */
-    public function getWebserviceInstanceForWarehouse($warehouseSenderId)
+    public function getWebserviceInstanceForWarehouse($warehouseSenderId): GOWebService
     {
         $warehouseConfig = json_decode($this->config->get('GoExpress.advanced.warehouseSenderConfig'), true);
         if (array_key_exists($warehouseSenderId, $warehouseConfig)) {
 
-            $this->Versender = $warehouseConfig[$warehouseSenderId]['sender']['company_name'];
-            $this->VersenderId = $warehouseConfig[$warehouseSenderId]['sender']['ax4_id'];
+            $this->setVersender($warehouseConfig[$warehouseSenderId]['sender']['company_name']);
+            $this->setVersenderId($warehouseConfig[$warehouseSenderId]['sender']['ax4_id']);
 
             $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Warehouse', [
                 'warehouseSenderId' => $warehouseSenderId,
-                'warehouseConfig' => $this->Versender . '|' . $this->VersenderId
+                'warehouseConfig' => $this->getVersender() . '|' . $this->getVersenderId()
             ]);
 
             return $this->getWebserviceInstance(
@@ -224,7 +221,7 @@ class GoExpressFactory
      *
      * @return string
      */
-    public function getPDFLabelFormat()
+    public function getPDFLabelFormat(): string
     {
         return $this->config->get('GoExpress.advanced.pdfLabelTag');
     }
@@ -236,18 +233,18 @@ class GoExpressFactory
      */
     public function init()
     {
-        $this->VersenderId = intval($this->config->get('GoExpress.sender.senderId', ''));
-        $this->Versender = $this->config->get('GoExpress.sender.senderName', '');
-        $this->Abholadresse = $this->getAbholadresse();
-        $this->Abholdatum = $this->getAbholdatum();
-        $this->Abholhinweise = $this->setAbholhinweise($this->config->get('GoExpress.shipping.pickupNotice', ''));
-        $this->Zustelldatum = $this->getZustelldatum();
+        $this->setVersenderId(intval($this->config->get('GoExpress.sender.senderId', '')));
+        $this->setVersender($this->config->get('GoExpress.sender.senderName', ''));
+        $this->setAbholadresse($this->initAbholadresse());
+        $this->setAbholdatum($this->initAbholdatum());
+        $this->setAbholhinweise($this->config->get('GoExpress.shipping.pickupNotice', ''));
+        $this->setZustelldatum($this->initZustelldatum());
     }
 
     /**
      * @return boolean
      */
-    public function isWarehouseSenderEnabled()
+    public function isWarehouseSenderEnabled(): bool
     {
         $enableWarehouseSender = $this->config->get('GoExpress.advanced.enableWarehouseSender');
         if ($enableWarehouseSender === 'true') {
@@ -258,9 +255,47 @@ class GoExpressFactory
     }
 
     /**
+     * @return integer
+     */
+    public function getVersenderId(): int
+    {
+        return $this->VersenderId;
+    }
+
+    /**
+     * @param integer $VersenderId
+     * @return self
+     */
+    public function setVersenderId($VersenderId): self
+    {
+        $this->VersenderId = $VersenderId;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersender(): string
+    {
+        return $this->Versender;
+    }
+
+    /**
+     * @param string $Versender
+     * @return self
+     */
+    public function setVersender($Versender): self
+    {
+        $this->Versender = $Versender;
+
+        return $this;
+    }
+
+    /**
      * @return Abholadresse
      */
-    private function getAbholadresse()
+    private function initAbholadresse(): Abholadresse
     {
         $senderStreet = $this->config->get('GoExpress.sender.senderStreet', '');
         $senderNo = $this->config->get('GoExpress.sender.senderNo', '');
@@ -270,7 +305,7 @@ class GoExpressFactory
 
         /** @var Abholadresse $instance */
         $instance = pluginApp(Abholadresse::class, [
-            $this->Versender,
+            $this->getVersender(),
             $senderStreet,
             $senderNo,
             $senderCountry,
@@ -283,18 +318,20 @@ class GoExpressFactory
 
     /**
      * @param Abholadresse $Abholadresse
-     * @return void
+     * @return self
      */
-    private function setAbholadresse($Abholadresse)
+    private function setAbholadresse($Abholadresse): self
     {
         $this->Abholadresse = $Abholadresse;
+
+        return $this;
     }
 
     /**
      * @param mixed $warehouseSender
-     * @return Abholadresse
+     * @return self
      */
-    public function overwriteAbholadresseFromWarehouse($warehouseSender)
+    public function overwriteAbholadresseFromWarehouse($warehouseSender): self
     {
         $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.WarehouseAddresses', ['warehouseSender' => $warehouseSender]);
 
@@ -303,7 +340,7 @@ class GoExpressFactory
 
         /** @var Abholadresse $instance */
         $instance = pluginApp(Abholadresse::class, [
-            $this->Versender,
+            $this->getVersender(),
             $warehouseSender->address->address1,
             $warehouseSender->address->address2,
             $warehouseSenderCountry->isoCode2,
@@ -325,12 +362,14 @@ class GoExpressFactory
         }
 
         $this->setAbholhinweise($this->getAbholhinweise());
+
+        return $this;
     }
 
     /**
      * @return Abholdatum
      */
-    private function getAbholdatum()
+    private function initAbholdatum(): Abholdatum
     {
         // Default pickup date is today, on weekends the next business day (monday)
         $now = Carbon::now()->isWeekday() ? Carbon::now() : Carbon::now()->startOfWeek()->addWeek();
@@ -369,28 +408,41 @@ class GoExpressFactory
     }
 
     /**
+     * @param Abholdatum $Abholdatum
+     * @return self
+     */
+    private function setAbholdatum($Abholdatum): self
+    {
+        $this->Abholdatum = $Abholdatum;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
-    private function getAbholhinweise()
+    private function getAbholhinweise(): string
     {
         return $this->Abholhinweise;
     }
 
     /**
      * @param string $Abholhinweise
-     * @return void
+     * @return self
      */
-    private function setAbholhinweise($Abholhinweise)
+    private function setAbholhinweise($Abholhinweise): self
     {
         $this->Abholhinweise = $this->replaceMarkers($Abholhinweise);
+
+        return $this;
     }
 
     /**
      * @param Address $deliveryAddress
      * @param Address $billingAddress
-     * @return void
+     * @return self
      */
-    public function setEmpfaenger($deliveryAddress, $billingAddress)
+    public function setEmpfaenger($deliveryAddress, $billingAddress): self
     {
         $receiverName1 = implode(' ', [$deliveryAddress->firstName, $deliveryAddress->lastName]);
         $receiverName2 = null;
@@ -441,13 +493,15 @@ class GoExpressFactory
                 $this->Empfaenger->setAbteilung($phoneNumber);
             }
         }
+
+        return $this;
     }
 
     /**
      * @param array $packages
-     * @return void
+     * @return self
      */
-    public function setSendungsPosition($packages)
+    public function setSendungsPosition($packages): self
     {
         // package sums
         $firstPackageName = self::DEFAULT_PACKAGE_NAME;
@@ -474,6 +528,8 @@ class GoExpressFactory
         ]);
 
         $this->SendungsPosition = $parcelData;
+
+        return $this;
     }
 
     /**
@@ -489,9 +545,9 @@ class GoExpressFactory
 
     /**
      * @param integer $orderId
-     * @return void
+     * @return self
      */
-    public function setKundenreferenz($orderId)
+    public function setKundenreferenz($orderId): self
     {
         // Default and fallback value
         $this->Kundenreferenz = $orderId;
@@ -516,15 +572,17 @@ class GoExpressFactory
                 $this->Kundenreferenz = implode(' ', [$orderId, '/', $externalOrderId]);
             }
         }
+
+        return $this;
     }
 
     /**
      * Overwrite default delivery notice if necessary (either per package or order comment must contain @goexpress)
      * 
      * @param array $comments
-     * @return void
+     * @return self
      */
-    public function setZustellhinweise($comments)
+    public function setZustellhinweise($comments): self
     {
         $deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
 
@@ -554,6 +612,8 @@ class GoExpressFactory
         }
 
         $this->Zustellhinweise = $this->replaceMarkers($deliveryNotice);
+
+        return $this;
     }
 
     /**
@@ -586,7 +646,7 @@ class GoExpressFactory
     /**
      * @return mixed
      */
-    public function getZustelldatum()
+    public function initZustelldatum()
     {
         $enableSaturdayDelivery = $this->config->get('GoExpress.shipping.enableSaturdayDelivery');
         if ($enableSaturdayDelivery === 'false') return;
@@ -618,9 +678,20 @@ class GoExpressFactory
     }
 
     /**
+     * @param mixed $Zustelldatum
+     * @return self
+     */
+    private function setZustelldatum($Zustelldatum): self
+    {
+        $this->Zustelldatum = $Zustelldatum;
+
+        return $this;
+    }
+
+    /**
      * @return SendungsDaten
      */
-    public function getSendungsDaten()
+    public function getSendungsDaten(): SendungsDaten
     {
         /** @var SendungsDaten $instance */
         $instance = pluginApp(SendungsDaten::class, [
@@ -642,7 +713,7 @@ class GoExpressFactory
      * @param string $subject
      * @return string
      */
-    private function replaceMarkers($subject)
+    private function replaceMarkers($subject): string
     {
         foreach ($this->markers as $key => $value) {
             $subject = str_replace($key, $value, $subject);
