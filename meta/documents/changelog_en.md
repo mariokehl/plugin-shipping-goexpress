@@ -1,5 +1,21 @@
 # Release Notes for GO! Express
 
+## v1.0.6 (2022-06-03)
+
+### Added
+- New option "Get sender data from warehouse" under **Advanced**, so that individual sender/collection addresses per warehouse are transmitted via warehouse configuration. For this purpose, the address data of the warehouse must be maintained under **Setup » Stock » Warehouse** and a correct warehouse configuration entered
+- Added a PDF label printer selection option under **Advanced** in the plugin configuration: Standard, Citizen and Zebra
+- If the shipping package does not have a weight specification, a standard weight can be stored using the "Minimum weight (g)" option under **Shipping**
+- New option to configure a delivery notice per package in the **Shipping** area (overwrites the previously set delivery notice per order!)
+- Option "Transfer the telephone number as Abteilung additionally" in the **Shipping** area to make the customer's telephone number visible on the shipping label
+
+### Changed
+- Determining the country code for forwarding the phone number to GO! has been expanded to include several European supplier countries
+- We cleaned up and drank way too much coffee
+
+### Fixed
+- PHP 8 compatibility indicator set after source code check
+
 ## v1.0.5 (2022-05-06)
 
 ### Changed
