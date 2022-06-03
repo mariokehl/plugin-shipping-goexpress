@@ -17,6 +17,12 @@ class Empfaenger
     public $Firmenname2 = null;
 
     /**
+     * @var string $Abteilung
+     * @access public
+     */
+    public $Abteilung = null;
+
+    /**
      * @var string $Strasse1
      * @access public
      */
@@ -82,10 +88,26 @@ class Empfaenger
 
     /**
      * Set the value of Ansprechpartner
+     * 
+     * @param string $Abteilung
+     * @return self
      */
     public function setAnsprechpartner($Ansprechpartner): self
     {
         $this->Ansprechpartner = $Ansprechpartner;
+
+        return $this;
+    }
+
+    /**
+     * Set the optional value of Abteilung
+     *
+     * @param string $Abteilung
+     * @return self
+     */
+    public function setAbteilung($Abteilung): self
+    {
+        $this->Abteilung = substr($Abteilung, 0, 40);
 
         return $this;
     }

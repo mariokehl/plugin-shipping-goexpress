@@ -30,8 +30,7 @@ class GoExpressServiceProvider extends ServiceProvider
             ],
             [
                 'GoExpress\\Controllers\\ShippingController@registerShipments',
-                'GoExpress\\Controllers\\ShippingController@getLabels',
-                'GoExpress\\Controllers\\ShippingController@deleteShipments',
+                'GoExpress\\Controllers\\ShippingController@getLabels'
             ]
         );
     }

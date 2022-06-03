@@ -15,6 +15,7 @@ use GoExpress\API\GOWebService;
 use GoExpress\API\SendungsDaten;
 use GoExpress\API\PDFLabelAnfrage;
 use GoExpress\Factory\GoExpressFactory;
+use Plenty\Modules\Order\Models\Order;
 use Plenty\Plugin\Log\Loggable;
 
 /**
@@ -87,8 +88,6 @@ class ShippingController extends Controller
 		$this->shippingInformationRepositoryContract = $shippingInformationRepositoryContract;
 
 		$this->factory = $factory;
-
-		$this->webservice = $this->factory->getWebserviceInstance();
 	}
 
 	/**
@@ -105,12 +104,22 @@ class ShippingController extends Controller
 		$orderIds = $this->getOpenOrderIds($orderIds);
 		$shipmentDate = date('Y-m-d');
 
+		// Initialize the webservice
+		$this->webservice = $this->factory->getWebserviceInstance();
+
 		// Initialize the factory
 		$this->factory->init();
 
 		foreach ($orderIds as $orderId) {
+			/** @var Order $order */
 			$order = $this->orderRepository->findOrderById($orderId);
-			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => json_encode($order)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => $order]);
+
+			// warehouse specific registering
+			if ($this->factory->isWarehouseSenderEnabled()) {
+				$this->webservice = $this->factory->getWebserviceInstanceForWarehouse($order->warehouseSenderId);
+				$this->factory->overwriteAbholadresseFromWarehouse($order->warehouseSender);
+			}
 
 			// gathering required data for registering the shipment
 			$this->factory->setEmpfaenger($order->deliveryAddress, $order->billingAddress);
@@ -179,49 +188,6 @@ class ShippingController extends Controller
 	}
 
 	/**
-	 * Cancels registered shipment(s)
-	 *
-	 * @param Request $request
-	 * @param array $orderIds
-	 * @internal see GoExpressServiceProvider
-	 * @return array
-	 */
-	public function deleteShipments(Request $request, $orderIds)
-	{
-		$orderIds = $this->getOrderIds($request, $orderIds);
-		foreach ($orderIds as $orderId) {
-			$shippingInformation = $this->shippingInformationRepositoryContract->getShippingInformationByOrderId($orderId);
-
-			if (isset($shippingInformation->additionalData) && is_array($shippingInformation->additionalData)) {
-				foreach ($shippingInformation->additionalData as $additionalData) {
-					try {
-						$shipmentNumber = $additionalData['shipmentNumber'];
-
-						// use the shipping service provider's API here
-						$response = '';
-
-						$this->createOrderResult[$orderId] = $this->buildResultArray(
-							true,
-							'shipment deleted',
-							false,
-							null
-						);
-					} catch (\SoapFault $soapFault) {
-						// exception handling
-					}
-				}
-
-				// resets the shipping information of current order
-				$this->shippingInformationRepositoryContract->resetShippingInformation($orderId);
-			}
-		}
-
-		// return result array
-		return $this->createOrderResult;
-	}
-
-
-	/**
 	 * Retrieves the label file from PDFs response and saves it in S3 storage
 	 *
 	 * @param string $label
@@ -262,7 +228,7 @@ class ShippingController extends Controller
 	 */
 	private function saveShippingInformation($orderId, $shipmentDate, $shipmentItems)
 	{
-		$transactionIds = array();
+		$transactionIds = [];
 		foreach ($shipmentItems as $shipmentItem) {
 			$transactionIds[] = $shipmentItem['shipmentNumber'];
 		}
@@ -292,7 +258,7 @@ class ShippingController extends Controller
 	 */
 	private function getOpenOrderIds($orderIds)
 	{
-		$openOrderIds = array();
+		$openOrderIds = [];
 		foreach ($orderIds as $orderId) {
 			$shippingInformation = $this->shippingInformationRepositoryContract->getShippingInformationByOrderId($orderId);
 			if ($shippingInformation->shippingStatus == null || $shippingInformation->shippingStatus == 'open') {
@@ -330,7 +296,7 @@ class ShippingController extends Controller
 	 */
 	private function buildShipmentItems($labelUrl, $shipmentNumber)
 	{
-		return  [
+		return [
 			'labelUrl' => $labelUrl,
 			'shipmentNumber' => $shipmentNumber,
 		];
@@ -355,13 +321,13 @@ class ShippingController extends Controller
 	 * Returns all order ids from request object
 	 *
 	 * @param Request $request
-	 * @param $orderIds
+	 * @param mixed $orderIds
 	 * @return array
 	 */
 	private function getOrderIds(Request $request, $orderIds)
 	{
 		if (is_numeric($orderIds)) {
-			$orderIds = array($orderIds);
+			$orderIds = [$orderIds];
 		} else if (!is_array($orderIds)) {
 			$orderIds = $request->get('orderIds');
 		}
@@ -386,7 +352,7 @@ class ShippingController extends Controller
 			$width = null;
 			$height = null;
 		}
-		return array($length, $width, $height);
+		return [$length, $width, $height];
 	}
 
 	/**
@@ -400,7 +366,7 @@ class ShippingController extends Controller
 	public function getLabels(Request $request, $orderIds)
 	{
 		$orderIds = $this->getOrderIds($request, $orderIds);
-		$labels = array();
+		$labels = [];
 		foreach ($orderIds as $orderId) {
 			$results = $this->orderShippingPackage->listOrderShippingPackages($orderId);
 			/** @var OrderShippingPackage $result */
@@ -429,15 +395,21 @@ class ShippingController extends Controller
 	 */
 	private function handleAfterRegisterShipment($response, $packageId)
 	{
-		$shipmentItems = array();
-
 		$shipmentData = array_shift($response->Sendung);
 
-		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($shipmentData->PDFs->Routerlabel)) {
+		if ($this->factory->getPDFLabelFormat() === 'RouterlabelZebra') {
+			$PDFLabel = $shipmentData->PDFs->RouterlabelZebra;
+		} else {
+			$PDFLabel = $shipmentData->PDFs->Routerlabel;
+		}
+
+		$shipmentItems = [];
+
+		if (strlen($shipmentData->Frachtbriefnummer) > 0 && isset($PDFLabel)) {
 			$shipmentNumber = $shipmentData->Frachtbriefnummer;
-			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['length' => strlen($shipmentData->PDFs->Routerlabel)]);
+			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['length' => strlen($PDFLabel)]);
 			$storageObject = $this->saveLabelToS3(
-				$shipmentData->PDFs->Routerlabel,
+				$PDFLabel,
 				$packageId . '.pdf'
 			);
 			$this->getLogger(__METHOD__)->debug('GoExpress::Webservice.S3Storage', ['storageObject' => json_encode($storageObject)]);

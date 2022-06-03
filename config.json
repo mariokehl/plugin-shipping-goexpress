@@ -136,6 +136,14 @@
     "shipping": {
       "label": "Config.Shipping",
       "formFields": {
+        "shipping.minimumWeight": {
+          "type": "inputText",
+          "label": "Config.ShippingMinimumWeight",
+          "options": {
+            "required": true,
+            "defaultValue": "200"
+          }
+        },
         "shipping.pickupLeadTime": {
           "type": "inputText",
           "label": "Config.ShippingPickupLeadTime",
@@ -172,6 +180,14 @@
             "defaultValue": ""
           }
         },
+        "shipping.packageDeliveryNotice": {
+          "type": "inputTextArea",
+          "label": "Config.ShippingPackageDeliveryNotice",
+          "options": {
+            "tooltip": "Config.ShippingPackageDeliveryNoticeTooltip",
+            "defaultValue": ""
+          }
+        },
         "shipping.customerReference": {
           "type": "selectBox",
           "required": true,
@@ -197,8 +213,47 @@
         "shipping.enableSaturdayDelivery": {
           "type": "checkBox",
           "label": "Config.ShippingEnableSaturdayDelivery"
+        },
+        "shipping.enablePhoneNumberOnShippingLabel": {
+          "type": "checkBox",
+          "label": "Config.ShippingEnablePhoneNumberOnShippingLabel"
         }
       }
-    }
+    },
+    "advanced": {
+      "label": "Config.Advanced",
+      "formFields": {
+        "advanced.pdfLabelTag": {
+          "type": "selectBox",
+          "required": true,
+          "label": "Config.AdvancedPDFLabelTag",
+          "options": {
+            "defaultValue": "Routerlabel",
+            "selectBoxValues": [
+              {
+                "value": "Routerlabel",
+                "caption": "Config.AdvancedPDFLabelTagRouterlabel"
+              },
+              {
+                "value": "RouterlabelZebra",
+                "caption": "Config.AdvancedPDFLabelTagRouterlabelZebra"
+              }
+            ]
+          }
+        },
+        "advanced.warehouseSenderConfig": {
+          "type": "inputTextArea",
+          "label": "Config.AdvancedWarehouseSenderConfig",
+          "options": {
+            "tooltip": "Config.AdvancedWarehouseSenderConfigTooltip",
+            "defaultValue": "{}"
+          }
+        },
+        "advanced.enableWarehouseSender": {
+          "type": "checkBox",
+          "label": "Config.AdvancedEnableWarehouseSender"
+        }
+      }
+    } 
   }
 }

@@ -1,5 +1,21 @@
 # Versionshinweise für GO! Express
 
+## v1.0.6 (03.06.2022)
+
+### Hinzugefügt
+- Neue Option "Absender-Daten aus Lager holen" unter **Fortgeschritten**, so dass über eine Lager-Konfiguration individuelle Absender-/Abholadressen pro Lager übermittelt werden. Dazu müssen die Adressdaten der Lager unter **Einstellungen » Waren » Lager** gepflegt sein und eine korrekte Lager-Konfiguration eingetragen sein
+- In der Plugin-Konfiguration wurde eine Auswahloption des PDF-Labeldruckers unter **Fortgeschritten** ergänzt: Standard, Citizen und Zebra
+- Insofern das Versandpaket keine Gewichtsangabe hat, kann über die Option "Minimales Gewicht (g)" unter **Versand** ein Standard-Gewicht hinterlegt werden
+- Neue Möglichkeit einen Zustellhinweis pro Paket im Bereich **Versand** zu konfigurieren (überschreibt den zuvor eingestellten Zustellhinweis pro Auftrag!)
+- Option "Telefonnummer zusätzlich im Feld Abteilung übertragen" im Bereich **Versand** um die Telefonnummer des Kunden auf dem Versandetikett sichtbar zu machen
+
+### Geändert
+- Die Ermittlung der Landesvorwahl zur Weitergabe der Telefonnummer an GO! wurde hinsichtlich mehrerer europäischer Lieferländer erweitert
+- Wir haben aufgeräumt und viel zu viel Kaffee getrunken
+
+### Behoben
+- Indikator hinsichtlich PHP 8 Kompatibilität nach Prüfung des Quellcodes gesetzt
+
 ## v1.0.5 (06.05.2022)
 
 ### Geändert
@@ -8,7 +24,7 @@
 ## v1.0.4 (06.04.2022)
 
 ### Hinzugefügt
-- Neue Konfiguration Vorlaufzeit: alle Sendungen nach X Minuten vor Beginn der Abholzeit werden auf den nächsten Werktag verschoben
+- Neue Konfiguration "Vorlaufzeit": alle Sendungen nach X Minuten vor Beginn der Abholzeit werden auf den nächsten Werktag verschoben
 - Es ist nun über eine Auswahl in der Konfiguration möglich zu bestimmen, welche Nummer als Kundenreferenz übertragen wird: Auftrags-ID, Ext. Auftragsnummer oder beide
 
 ## v1.0.3 (30.03.2022)
@@ -26,7 +42,7 @@
 ## v1.0.2 (22.03.2022)
 
 ### Hinzugefügt
-- Es ist nun möglich in den Versandeinstellungen in der Plugin-Konfiguration einen Abholhinweis zu hinterlegen (dieser erscheint auf dem Label)
+- Es ist nun möglich in den Versandeinstellungen in der Plugin-Konfiguration einen "Abholhinweis" zu hinterlegen (dieser erscheint auf dem Label)
 - In den Versandeinstellungen gibt es eine neue Option "Samstagszustellung aktiv". Sobald diese Option ausgewählt ist, werden Anmeldungen am Freitag automatisch als Samstagszustellung durchgeführt
 
 ### Geändert
