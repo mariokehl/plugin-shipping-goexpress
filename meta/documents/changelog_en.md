@@ -1,5 +1,13 @@
 # Release Notes for GO! Express
 
+## v1.0.7 (2022-06-23)
+
+### Changed
+- The setting "Minimum Weight (g)" in the plugin configuration is no longer mandatory. If no number is entered there, a minimum of 200g is automatically transmitted.
+
+### Fixed
+- PHP 8 compatibility indicator set after source code check
+
 ## v1.0.6 (2022-06-03)
 
 ### Added
@@ -12,9 +20,6 @@
 ### Changed
 - Determining the country code for forwarding the phone number to GO! has been expanded to include several European supplier countries
 - We cleaned up and drank way too much coffee
-
-### Fixed
-- PHP 8 compatibility indicator set after source code check
 
 ## v1.0.5 (2022-05-06)
 

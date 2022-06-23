@@ -1,5 +1,13 @@
 # Versionshinweise für GO! Express
 
+## v1.0.7 (23.06.2022)
+
+### Geändert
+- Die Angabe "Minimales Gewicht (g)" in der Plugin-Konfiguration ist nun nicht mehr verpflichtend. Ist dort kein Zahl eingetragen, wird automatisch ein Minimum in Höhe von 200g übermittelt.
+
+### Behoben
+- Indikator hinsichtlich PHP 8 Kompatibilität nach Prüfung des Quellcodes gesetzt
+
 ## v1.0.6 (03.06.2022)
 
 ### Hinzugefügt
@@ -12,9 +20,6 @@
 ### Geändert
 - Die Ermittlung der Landesvorwahl zur Weitergabe der Telefonnummer an GO! wurde hinsichtlich mehrerer europäischer Lieferländer erweitert
 - Wir haben aufgeräumt und viel zu viel Kaffee getrunken
-
-### Behoben
-- Indikator hinsichtlich PHP 8 Kompatibilität nach Prüfung des Quellcodes gesetzt
 
 ## v1.0.5 (06.05.2022)
 

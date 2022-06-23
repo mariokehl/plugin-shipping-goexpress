@@ -140,7 +140,6 @@
           "type": "inputText",
           "label": "Config.ShippingMinimumWeight",
           "options": {
-            "required": true,
             "defaultValue": "200"
           }
         },

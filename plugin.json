@@ -9,7 +9,7 @@
       ],
       "namespace": "GoExpress",
       "type": "shipping",
-      "version": "1.0.6",
+      "version": "1.0.7",
       "price": 79.99,
       "description": "plentymarkets plugin for shipping provider GO! Express",
       "shortDescription": {
@@ -17,7 +17,7 @@
             "de": "Expressversand national und international mit GO!"
       },
       "platform": {
-            "php": ">=7.3 <=8.1"
+            "php": ">=7.3 <8.1"
       },
       "isClosedSource": true,
       "serviceProvider": "GoExpress\\Providers\\GoExpressServiceProvider",
