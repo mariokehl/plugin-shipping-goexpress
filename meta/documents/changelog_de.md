@@ -3,7 +3,7 @@
 ## v1.0.7 (23.06.2022)
 
 ### Geändert
-- Die Angabe "Minimales Gewicht (g)" in der Plugin-Konfiguration ist nun nicht mehr verpflichtend. Ist dort kein Zahl eingetragen, wird automatisch ein Minimum in Höhe von 200g übermittelt.
+- Die Angabe "Minimales Gewicht (g)" in der Plugin-Konfiguration ist nun nicht mehr verpflichtend. Ist dort keine Zahl eingetragen, wird automatisch ein Minimum in Höhe von 200g übermittelt.
 
 ### Behoben
 - Indikator hinsichtlich PHP 8 Kompatibilität nach Prüfung des Quellcodes gesetzt
