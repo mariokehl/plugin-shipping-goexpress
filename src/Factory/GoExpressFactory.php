@@ -193,7 +193,7 @@ class GoExpressFactory
     public function getWebserviceInstanceForWarehouse($warehouseSenderId): GOWebService
     {
         $warehouseConfig = json_decode($this->config->get('GoExpress.advanced.warehouseSenderConfig'), true);
-        if (array_key_exists($warehouseSenderId, $warehouseConfig)) {
+        if (is_array($warehouseConfig) && array_key_exists($warehouseSenderId, $warehouseConfig)) {
 
             $this->setVersender($warehouseConfig[$warehouseSenderId]['sender']['company_name']);
             $this->setVersenderId($warehouseConfig[$warehouseSenderId]['sender']['ax4_id']);
