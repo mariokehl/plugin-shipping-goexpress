@@ -193,7 +193,7 @@ class GoExpressFactory
     public function getWebserviceInstanceForWarehouse($warehouseSenderId): GOWebService
     {
         $warehouseConfig = json_decode($this->config->get('GoExpress.advanced.warehouseSenderConfig'), true);
-        if (array_key_exists($warehouseSenderId, $warehouseConfig)) {
+        if (is_array($warehouseConfig) && array_key_exists($warehouseSenderId, $warehouseConfig)) {
 
             $this->setVersender($warehouseConfig[$warehouseSenderId]['sender']['company_name']);
             $this->setVersenderId($warehouseConfig[$warehouseSenderId]['sender']['ax4_id']);
@@ -538,7 +538,12 @@ class GoExpressFactory
     private function getMinimumFallbackWeight(): float
     {
         $grams = $this->config->get('GoExpress.shipping.minimumWeight', self::MINIMUM_FALLBACK_WEIGHT);
-        $kilograms = sprintf('%.2f', $grams / 1000);
+        $grams = intval($grams);
+        if ($grams > 0) {
+            $kilograms = sprintf('%.2f', $grams / 1000);
+        } else {
+            $kilograms = '0.2';
+        }
 
         return floatval($kilograms);
     }
