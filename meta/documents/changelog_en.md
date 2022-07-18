@@ -1,5 +1,10 @@
 # Release Notes for GO! Express
 
+## v1.0.8 (2022-07-18)
+
+### Fixed
+- The "Minimum weight (g)" setting led to a problem when registering the shipping order if the shipping package did not have a stored weight.
+
 ## v1.0.7 (2022-06-23)
 
 ### Changed

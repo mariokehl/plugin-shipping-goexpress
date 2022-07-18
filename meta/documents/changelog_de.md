@@ -1,5 +1,10 @@
 # Versionshinweise für GO! Express
 
+## v1.0.8 (18.07.2022)
+
+### Behoben
+- Die Option "Minimales Gewicht (g)" führte zu einem Problem bei der Versandauftragsanmeldung, insofern das Versandpaket kein hinterlegtes Gewicht hat.
+
 ## v1.0.7 (23.06.2022)
 
 ### Geändert
