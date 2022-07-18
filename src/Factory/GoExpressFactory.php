@@ -589,17 +589,20 @@ class GoExpressFactory
      */
     public function setZustellhinweise($comments): self
     {
+        /**
+         * 1. Default delivery notice
+         */
         $deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
 
         /**
-         * Delivery instructions depending on the package content
+         * 2. Delivery instructions depending on the package content
          */
         if ($packageOverwrite = $this->getPaketZustellhinweis()) {
             $deliveryNotice = $packageOverwrite;
         }
 
         /**
-         * Individual delivery information per shipment
+         * 3. Individual delivery information per shipment
          * 
          * @var Comment $comment
          */
