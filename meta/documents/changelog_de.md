@@ -1,5 +1,10 @@
 # Versionshinweise für GO! Express
 
+## v1.0.9 (17.11.2022)
+
+### Geändert
+- Bei der Anmeldung des Versands wird nun geprüft, ob 1.) die Lieferadresse eine Hausnummer hat und 2. die Länge der PLZ zum Land (DE = 5-stellig, AT = 4-stellig) passt. Ist dies ungültig, erhält der Benutzer eine Fehlermeldung mit dem Hinweis, die Lieferadresse zu korrigieren (dieses Verhalten kann ggf. in der Plugin-Konfiguration deaktiviert werden)
+
 ## v1.0.8 (18.07.2022)
 
 ### Behoben
