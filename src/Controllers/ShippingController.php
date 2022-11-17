@@ -123,6 +123,15 @@ class ShippingController extends Controller
 
 			// gathering required data for registering the shipment
 			$this->factory->setEmpfaenger($order->deliveryAddress, $order->billingAddress);
+			if ($rc = $this->factory->validateEmpfaenger()) {
+				$this->createOrderResult[$orderId] = $this->buildResultArray(
+					false,
+					$rc['error_msg'],
+					false,
+					[]
+				);
+				continue;
+			}
 
 			// gets order shipping packages from current order
 			$packages = $this->orderShippingPackage->listOrderShippingPackages($orderId);

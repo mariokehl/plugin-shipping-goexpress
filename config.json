@@ -222,6 +222,14 @@
     "advanced": {
       "label": "Config.Advanced",
       "formFields": {
+        "advanced.validateDeliveryAddress": {
+          "type": "checkBox",
+          "label": "Config.AdvancedValidateDeliveryAddress",
+          "options": {
+            "tooltip": "Config.AdvancedValidateDeliveryAddressTooltip",
+            "defaultValue": "true"
+          }
+        },
         "advanced.pdfLabelTag": {
           "type": "selectBox",
           "required": true,
