@@ -49,6 +49,12 @@ class GoExpressFactory
     const MARKER_WAREHOUSE_EMAIL = '$Lager[E-Mail]';
 
     /**
+     * Error codes
+     */
+    const ERROR_MISSING_HOUSENUMBER = 1668696676;
+    const ERROR_INVALID_LENGTH_ZIP = 1668696704;
+
+    /**
      * @var ConfigRepository $config
      */
     private $config;
@@ -498,6 +504,34 @@ class GoExpressFactory
     }
 
     /**
+     * @return null|array
+     */
+    public function validateEmpfaenger()
+    {
+        if ($this->config->get('GoExpress.advanced.validateDeliveryAddress') == 'false') {
+            return false;
+        }
+
+        if (!strlen($this->Empfaenger->Hausnummer)) {
+            return [
+                'error_code' => self::ERROR_MISSING_HOUSENUMBER,
+                'error_msg' => 'Hausnummer fehlt, Lieferadresse korrigieren!'
+            ];
+        }
+
+        if (($this->Empfaenger->Land == 'DE' && strlen($this->Empfaenger->Postleitzahl) != 5) ||
+            ($this->Empfaenger->Land == 'AT' && strlen($this->Empfaenger->Postleitzahl) != 4)
+        ) {
+            return [
+                'error_code' => self::ERROR_INVALID_LENGTH_ZIP,
+                'error_msg' => 'PLZ ' . $this->Empfaenger->Postleitzahl . ' hat falsche Länge für Lieferland ' . $this->Empfaenger->Land . ', Lieferadresse korrigieren!'
+            ];
+        }
+
+        return null;
+    }
+
+    /**
      * @param array $packages
      * @return self
      */
@@ -589,17 +623,20 @@ class GoExpressFactory
      */
     public function setZustellhinweise($comments): self
     {
+        /**
+         * 1. Default delivery notice
+         */
         $deliveryNotice = $this->config->get('GoExpress.shipping.deliveryNotice', '');
 
         /**
-         * Delivery instructions depending on the package content
+         * 2. Delivery instructions depending on the package content
          */
         if ($packageOverwrite = $this->getPaketZustellhinweis()) {
             $deliveryNotice = $packageOverwrite;
         }
 
         /**
-         * Individual delivery information per shipment
+         * 3. Individual delivery information per shipment
          * 
          * @var Comment $comment
          */

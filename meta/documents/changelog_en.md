@@ -1,5 +1,10 @@
 # Release Notes for GO! Express
 
+## v1.0.9 (17.11.2022)
+
+### Changed
+- When registering the shipping, it is now checked whether 1.) the delivery address has a house number and 2. the length of the postal code matches the country (DE = 5 digits, AT = 4 digits). If this is not valid, the user receives an error message telling them to correct the delivery address (this behavior can be deactivated in the plugin configuration if necessary)
+
 ## v1.0.8 (2022-07-18)
 
 ### Fixed
