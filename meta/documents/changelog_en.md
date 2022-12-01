@@ -1,5 +1,10 @@
 # Release Notes for GO! Express
 
+## v1.0.10 (2022-12-01)
+
+### Added
+- For advanced users: within the warehouse configuration, the sender data can now be overwritten depending on the client
+
 ## v1.0.9 (2022-11-17)
 
 ### Changed
@@ -13,7 +18,7 @@
 ## v1.0.7 (2022-06-23)
 
 ### Changed
-- The setting "Minimum Weight (g)" in the plugin configuration is no longer mandatory. If no number is entered there, a minimum of 200g is automatically transmitted.
+- The setting "Minimum weight (g)" in the plugin configuration is no longer mandatory. If no number is entered there, a minimum of 200g is automatically transmitted.
 
 ### Fixed
 - PHP 8 compatibility indicator set after source code check
