@@ -20,6 +20,7 @@ use Plenty\Modules\Order\Property\Models\OrderPropertyType;
 use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Order\Shipping\Countries\Models\Country;
 use Plenty\Modules\Order\Shipping\PackageType\Contracts\ShippingPackageTypeRepositoryContract;
+use Plenty\Modules\System\Models\Webstore;
 use Plenty\Plugin\ConfigRepository;
 use Plenty\Plugin\Log\Loggable;
 
@@ -193,29 +194,42 @@ class GoExpressFactory
     }
 
     /**
-     * @param mixed $warehouseSenderId
+     * @param Webstore $webstore
+     * @param integer $warehouseSenderId
      * @return GOWebService
      */
-    public function getWebserviceInstanceForWarehouse($warehouseSenderId): GOWebService
+    public function getWebserviceInstanceForWarehouse($webstore, $warehouseSenderId): GOWebService
     {
         $warehouseConfig = json_decode($this->config->get('GoExpress.advanced.warehouseSenderConfig'), true);
-        if (is_array($warehouseConfig) && array_key_exists($warehouseSenderId, $warehouseConfig)) {
+        if (!is_array($warehouseConfig)) {
+            $this->getLogger(__METHOD__)->error('GoExpress::Plenty.WarehouseConfigInvalid');
+        }
 
-            $this->setVersender($warehouseConfig[$warehouseSenderId]['sender']['company_name']);
-            $this->setVersenderId($warehouseConfig[$warehouseSenderId]['sender']['ax4_id']);
+        $targetKey = '';
+        $clientOverwriteKey = "client:{$webstore->id},{$warehouseSenderId}";
+        $hasOverwrite = array_key_exists($clientOverwriteKey, $warehouseConfig);
+
+        if ($hasOverwrite) $targetKey = $clientOverwriteKey;
+        else $targetKey = $warehouseSenderId;
+
+        if (array_key_exists($targetKey, $warehouseConfig)) {
+
+            $this->setVersender($warehouseConfig[$targetKey]['sender']['company_name']);
+            $this->setVersenderId($warehouseConfig[$targetKey]['sender']['ax4_id']);
 
             $this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Warehouse', [
+                'client' => $webstore,
                 'warehouseSenderId' => $warehouseSenderId,
                 'warehouseConfig' => $this->getVersender() . '|' . $this->getVersenderId()
             ]);
 
             return $this->getWebserviceInstance(
-                $warehouseConfig[$warehouseSenderId]['auth']['user'],
-                $warehouseConfig[$warehouseSenderId]['auth']['pass']
+                $warehouseConfig[$targetKey]['auth']['user'],
+                $warehouseConfig[$targetKey]['auth']['pass']
             );
         } else {
             $this->getLogger(__METHOD__)->warning('GoExpress::Plenty.WarehouseConfigNotFound', [
-                'warehouseSenderId' => $warehouseSenderId
+                'targetKey' => $targetKey
             ]);
         }
 

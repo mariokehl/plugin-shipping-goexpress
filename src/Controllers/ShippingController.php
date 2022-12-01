@@ -117,7 +117,7 @@ class ShippingController extends Controller
 
 			// warehouse specific registering
 			if ($this->factory->isWarehouseSenderEnabled()) {
-				$this->webservice = $this->factory->getWebserviceInstanceForWarehouse($order->warehouseSenderId);
+				$this->webservice = $this->factory->getWebserviceInstanceForWarehouse($order->client, $order->warehouseSenderId);
 				$this->factory->overwriteAbholadresseFromWarehouse($order->warehouseSender);
 			}
 
