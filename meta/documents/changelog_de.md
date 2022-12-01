@@ -1,5 +1,10 @@
 # Versionshinweise für GO! Express
 
+## v1.0.10 (01.12.2022)
+
+### Hinzugefügt
+- Für Fortgeschrittene: innerhalb der Lager-Konfiguration können die Absender-Daten nun in Abhängigkeit zum Mandanten überschrieben werden
+
 ## v1.0.9 (17.11.2022)
 
 ### Geändert
