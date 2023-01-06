@@ -705,7 +705,11 @@ class GoExpressFactory
     public function initZustelldatum()
     {
         $enableSaturdayDelivery = $this->config->get('GoExpress.shipping.enableSaturdayDelivery');
-        if ($enableSaturdayDelivery === 'false') return;
+        $this->getLogger(__METHOD__)->info('GoExpress::Webservice.Zustelldatum', ['enableSaturdayDelivery' => $enableSaturdayDelivery]);
+
+        if (is_null($enableSaturdayDelivery) || $enableSaturdayDelivery === 'false') return;
+
+        $this->getLogger(__METHOD__)->info('GoExpress::Config.ShippingEnableSaturdayDelivery');
 
         // if it's too late to register shipment on friday, it has to be moved to next monday and skipped for saturday delivery
         $pickupDate = Carbon::createFromFormat(self::WEBSERVICE_DATE_FORMAT, $this->Abholdatum->Datum);
