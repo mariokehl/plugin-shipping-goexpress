@@ -1,5 +1,10 @@
 # Versionshinweise für GO! Express
 
+## v1.0.11 (06.01.2023)
+
+### Geändert
+- Erweitertes Logging für die Samstagszustellung bzw. die Übermittlung des Zustelldatums
+
 ## v1.0.10 (01.12.2022)
 
 ### Hinzugefügt
