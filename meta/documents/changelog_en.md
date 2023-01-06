@@ -1,5 +1,10 @@
 # Release Notes for GO! Express
 
+## v1.0.11 (2023-01-06)
+
+### Changed
+- Extended logging for Saturday delivery and transmission of the delivery date
+
 ## v1.0.10 (2022-12-01)
 
 ### Added
