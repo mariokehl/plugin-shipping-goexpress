@@ -111,7 +111,7 @@ class ShippingController extends Controller
 		$this->factory->init();
 
 		foreach ($orderIds as $orderId) {
-			$this->getLogger(__METHOD__)->info('GoExpress::Plenty.Order', ['orderId' => $orderId]);
+			$this->getLogger(__METHOD__)->addReference('orderId', $orderId)->info('GoExpress::Plenty.Order');
 			/** @var Order $order */
 			$order = $this->orderRepository->findOrderById($orderId);
 			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => $order]);
