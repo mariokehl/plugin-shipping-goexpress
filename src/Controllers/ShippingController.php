@@ -17,6 +17,7 @@ use GoExpress\API\PDFLabelAnfrage;
 use GoExpress\Factory\GoExpressFactory;
 use Plenty\Modules\Order\Models\Order;
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Log\Reportable;
 
 /**
  * Class ShippingController
@@ -24,6 +25,7 @@ use Plenty\Plugin\Log\Loggable;
 class ShippingController extends Controller
 {
 	use Loggable;
+	use Reportable;
 
 	/**
 	 * @var OrderRepositoryContract $orderRepository
@@ -100,6 +102,8 @@ class ShippingController extends Controller
 	 */
 	public function registerShipments(Request $request, $orderIds)
 	{
+		$this->report(__METHOD__, 'GoExpress::Webservice.ClientID', null, ['GoExpressWS' => GOWebService::CLIENT_ID]);
+
 		$orderIds = $this->getOrderIds($request, $orderIds);
 		$orderIds = $this->getOpenOrderIds($orderIds);
 		$shipmentDate = date('Y-m-d');
@@ -111,10 +115,10 @@ class ShippingController extends Controller
 		$this->factory->init();
 
 		foreach ($orderIds as $orderId) {
-			$this->getLogger(__METHOD__)->addReference('orderId', $orderId)->info('GoExpress::Plenty.Order');
+			$this->report(__METHOD__, 'GoExpress::Plenty.Order', null, ['orderId' => $orderId]);
 			/** @var Order $order */
 			$order = $this->orderRepository->findOrderById($orderId);
-			$this->getLogger(__METHOD__)->debug('GoExpress::Plenty.Order', ['order' => $order]);
+			$this->getLogger(__METHOD__)->addReference('orderId', $orderId)->debug('GoExpress::Plenty.Order', ['order' => $order]);
 
 			// warehouse specific registering
 			if ($this->factory->isWarehouseSenderEnabled()) {

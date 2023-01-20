@@ -5,6 +5,14 @@ namespace GoExpress\API;
 class GOWebService extends \SoapClient
 {
     /**
+     * Public identifier for plugin
+     *
+     * @var integer
+     * @todo Increase version number upon new release
+     */
+    const CLIENT_ID = 1012;
+
+    /**
      * @var array $classmap The defined classes
      * @access private
      */
