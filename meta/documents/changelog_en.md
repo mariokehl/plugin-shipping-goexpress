@@ -1,5 +1,11 @@
 # Release Notes for GO! Express
 
+## v1.0.12 (2023-02-06)
+
+### Changed
+- Important events are now output as a report in the log, so that no extra configuration is necessary in this regard
+- The pricing model for one-time purchases has been adjusted
+
 ## v1.0.11 (2023-01-06)
 
 ### Changed

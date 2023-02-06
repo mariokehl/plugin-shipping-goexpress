@@ -1,5 +1,11 @@
 # Versionshinweise für GO! Express
 
+## v1.0.12 (06.02.2023)
+
+### Geändert
+- Wichtige Ereignisse werden im Log nun als Report ausgegeben, sodass keine Extra-Konfiguration diesbezüglich mehr notwendig ist
+- Das Preismodell für den Einmalkauf wurde angepasst
+
 ## v1.0.11 (06.01.2023)
 
 ### Geändert

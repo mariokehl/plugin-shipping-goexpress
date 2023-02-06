@@ -3,6 +3,8 @@
 namespace GoExpress\Providers;
 
 use GoExpress\Helpers\ShippingServiceProvider;
+use Plenty\Log\Services\ReferenceContainer;
+use Plenty\Log\Exceptions\ReferenceTypeException;
 use Plenty\Modules\Order\Shipping\ServiceProvider\Services\ShippingServiceProviderService;
 use Plenty\Plugin\ServiceProvider;
 
@@ -20,8 +22,21 @@ class GoExpressServiceProvider extends ServiceProvider
         //$this->getApplication()->register(GoExpressRouteServiceProvider::class);
     }
 
-    public function boot(ShippingServiceProviderService $shippingServiceProviderService)
-    {
+    /**
+     * @param ReferenceContainer $referenceContainer
+     * @param ShippingServiceProviderService $shippingServiceProviderService
+     * @return void
+     */
+    public function boot(
+        ReferenceContainer $referenceContainer,
+        ShippingServiceProviderService $shippingServiceProviderService
+    ) {
+        // Register reference types for logs
+        try {
+            $referenceContainer->add(['GoExpressWS' => 'GoExpressWS']);
+        } catch (ReferenceTypeException $ex) {}
+
+        // Register shipping provider
         $shippingServiceProviderService->registerShippingProvider(
             ShippingServiceProvider::PLUGIN_NAME,
             [

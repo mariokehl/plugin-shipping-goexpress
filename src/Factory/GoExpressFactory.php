@@ -522,9 +522,8 @@ class GoExpressFactory
      */
     public function validateEmpfaenger()
     {
-        if ($this->config->get('GoExpress.advanced.validateDeliveryAddress') == 'false') {
-            return false;
-        }
+        $validateDeliveryAddress = $this->config->get('GoExpress.advanced.validateDeliveryAddress');
+        if (is_null($validateDeliveryAddress) || $validateDeliveryAddress === 'false') return false;
 
         if (!strlen($this->Empfaenger->Hausnummer)) {
             return [
