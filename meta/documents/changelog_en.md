@@ -1,5 +1,10 @@
 # Release Notes for GO! Express
 
+## v1.0.13 (2023-07-19)
+
+### Fixed
+- Fixed an issue where the phone number entered by the customer was submitted incorrectly
+
 ## v1.0.12 (2023-02-06)
 
 ### Changed

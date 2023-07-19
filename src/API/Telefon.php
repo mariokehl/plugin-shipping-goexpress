@@ -62,7 +62,7 @@ class Telefon
             $Telefon = str_replace($this->LaenderPrefix, '', $Telefon);
         } else {
             if (substr($Telefon, 0, 1) === '0') {
-                $Telefon = str_replace('0', '', $Telefon);
+                $Telefon = substr($Telefon, 1);
             }
             if (array_key_exists($Land, self::LAENDERPREFIX_MAPPING)) {
                 $this->LaenderPrefix = self::LAENDERPREFIX_MAPPING[$Land];

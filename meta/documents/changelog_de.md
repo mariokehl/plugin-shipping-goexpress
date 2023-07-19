@@ -1,5 +1,10 @@
 # Versionshinweise für GO! Express
 
+## v1.0.13 (19.07.2023)
+
+## Behoben
+- Es wurde ein Problem behoben, bei dem die vom Kunden eingetragene Telefonnummer falsch übermittelt wurde
+
 ## v1.0.12 (06.02.2023)
 
 ### Geändert
