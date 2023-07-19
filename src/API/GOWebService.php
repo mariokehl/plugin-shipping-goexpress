@@ -10,7 +10,7 @@ class GOWebService extends \SoapClient
      * @var integer
      * @todo Increase version number upon new release
      */
-    const CLIENT_ID = 1012;
+    const CLIENT_ID = 1013;
 
     /**
      * @var array $classmap The defined classes

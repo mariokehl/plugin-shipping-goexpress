@@ -9,7 +9,7 @@
       ],
       "namespace": "GoExpress",
       "type": "shipping",
-      "version": "1.0.12",
+      "version": "1.0.13",
       "price": 115.43,
       "description": "plentymarkets plugin for shipping provider GO! Express",
       "shortDescription": {
